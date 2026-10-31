@@ -22,7 +22,11 @@
 
 <div class="announce" id="announce">
   <div class="announce-inner">
-    <p>WAVE 2 IS HERE - 18 new hamsters just dropped. Free shipping, always.</p>
+    <div class="announce-msgs" id="announceMsgs" aria-live="off">
+      <p class="on">WAVE 3 IS HERE - 20 new hamsters just dropped.</p>
+      <p><button class="announce-link" data-go="wheel">SPIN THE WHEEL</button> - win up to 30% off your adoption.</p>
+      <p>FREE SHIPPING, always. Spend $150 and get a free mystery sticker.</p>
+    </div>
     <button class="icon-btn" id="announceClose" aria-label="Dismiss announcement">
       <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M2 2l10 10M12 2L2 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
     </button>
@@ -32,11 +36,7 @@
 <header class="nav" id="nav">
   <div class="shell nav-row">
     <a class="logo" href="#" data-go="home" aria-label="Hammie Shop home">
-      <svg class="logo-mark" viewBox="0 0 40 40" aria-hidden="true">
-        <rect x="3" y="3" width="34" height="34" rx="11" fill="none" stroke="url(#iri)" stroke-width="4"/>
-        <circle cx="14.5" cy="18" r="2.6" fill="#f4f2ee"/><circle cx="25.5" cy="18" r="2.6" fill="#f4f2ee"/>
-        <path d="M17.6 23.4h4.8L20 26.4z" fill="#f2a7c3"/>
-      </svg>
+      <span class="logo-mark"><img id="logoImg" alt=""></span>
       <span class="logo-type"><small>HAMMIE</small><b>SHOP</b></span>
     </a>
     <nav class="links" aria-label="Main">
@@ -47,12 +47,20 @@
           Pages <svg width="10" height="6" viewBox="0 0 10 6" aria-hidden="true"><path d="M0 0h10L5 6z" fill="currentColor"/></svg>
         </button>
         <div class="menu-pop" id="pagesMenu" role="menu">
+          <button role="menuitem" data-go="new">New arrivals</button>
           <button role="menuitem" data-go="sale">On sale</button>
+          <button role="menuitem" data-go="wheel">Spin the wheel</button>
           <button role="menuitem" data-go="random">Surprise me</button>
           <button role="menuitem" data-go="about">About</button>
         </div>
       </div>
     </nav>
+    <button class="cart-btn saved-btn" id="savedBtn" aria-label="Show saved hamsters">
+      <svg width="26" height="24" viewBox="0 0 24 22" aria-hidden="true" class="heart-icon">
+        <path d="M12 20.5S2 14.4 2 7.6A5.1 5.1 0 0 1 7.2 2.5c2 0 3.7 1.1 4.8 2.8 1.1-1.7 2.8-2.8 4.8-2.8A5.1 5.1 0 0 1 22 7.6c0 6.8-10 12.9-10 12.9z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+      </svg>
+      <span class="badge empty" id="savedBadge">0</span>
+    </button>
     <button class="cart-btn" id="cartBtn" aria-label="Open cart">
       <svg width="30" height="28" viewBox="0 0 30 28" aria-hidden="true" class="cart-icon">
         <path d="M10 9V7a5 5 0 0 1 10 0v2" fill="none" stroke="currentColor" stroke-width="2"/>
@@ -85,16 +93,33 @@
     <section class="shell collection" id="shop">
       <h2 class="section-title">Latest Additions</h2>
       <div class="toolbar">
-        <p class="mono muted" id="count"></p>
-        <div class="seg" role="radiogroup" aria-label="Sort and filter" id="seg">
+        <label class="search">
+          <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><circle cx="7.5" cy="7.5" r="5.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M11.8 11.8L16 16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          <span class="sr-only">Search hamsters</span>
+          <input id="search" type="search" placeholder="Search by name or mood" autocomplete="off" spellcheck="false">
+          <kbd aria-hidden="true">/</kbd>
+        </label>
+        <div class="seg" role="radiogroup" aria-label="Sort" id="seg">
           <span class="seg-ind" aria-hidden="true"></span>
           <button role="radio" aria-checked="true" data-sort="featured">Featured</button>
           <button role="radio" aria-checked="false" data-sort="low">Price ↑</button>
           <button role="radio" aria-checked="false" data-sort="high">Price ↓</button>
-          <button role="radio" aria-checked="false" data-sort="sale">On sale</button>
         </div>
       </div>
+      <div class="filter-row">
+        <div class="filters" role="radiogroup" aria-label="Filter" id="filters"></div>
+        <p class="mono muted count" id="count" aria-live="polite"></p>
+      </div>
       <div class="grid" id="grid"></div>
+      <div class="no-results" id="noResults" hidden></div>
+    </section>
+
+    <section class="shell recent" id="recent" hidden>
+      <div class="recent-head">
+        <h2>Recently viewed</h2>
+        <button class="link-btn" id="recentClear">CLEAR</button>
+      </div>
+      <div class="grid" id="recentGrid"></div>
     </section>
 
     <section class="shell about" id="about">
@@ -156,6 +181,43 @@
       <h2>Payment successful!</h2>
       <p id="payDoneText"></p>
       <button class="btn-iri" id="payDoneBtn"><span>BACK TO THE SHOP</span></button>
+    </div>
+  </div>
+</div>
+
+<button class="spin-pill" id="spinPill" data-go="wheel" hidden>
+  <span class="mini-wheel" aria-hidden="true"></span><span>Spin to win</span>
+</button>
+
+<div class="modal" id="wheelModal" role="dialog" aria-modal="true" aria-labelledby="wheelTitle" hidden>
+  <div class="modal-scrim" data-wheel-close></div>
+  <div class="modal-card wheel-card">
+    <button class="icon-btn modal-close" data-wheel-close aria-label="Close">
+      <svg width="16" height="16" viewBox="0 0 14 14" aria-hidden="true"><path d="M2 2l10 10M12 2L2 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+    </button>
+    <div class="wheel-stage">
+      <div class="wheel-pointer" id="wheelPointer" aria-hidden="true"></div>
+      <div class="wheel" id="wheel" aria-hidden="true"></div>
+      <div class="wheel-hub" aria-hidden="true"><img id="hubImg" alt=""></div>
+    </div>
+    <div class="wheel-copy">
+      <div class="wheel-ask" id="wheelAsk">
+        <p class="eyebrow mono">ONE SPIN PER VISITOR</p>
+        <h2 id="wheelTitle">Spin the wheel, win a discount</h2>
+        <p class="muted">Every slice wins something. Up to 30% off your whole adoption, applied straight to your cart.</p>
+        <button class="btn-iri" id="spinBtn"><span>SPIN THE WHEEL</span></button>
+        <button class="link-btn later" data-wheel-close>MAYBE LATER</button>
+      </div>
+      <div class="wheel-won" id="wheelWon" hidden>
+        <p class="eyebrow mono">YOU WON</p>
+        <p class="won-big" id="wonBig"></p>
+        <div class="code-box">
+          <span class="mono" id="wonCode"></span>
+          <button class="link-btn" id="copyCode">COPY</button>
+        </div>
+        <p class="muted">Already applied to your cart. It sticks around until you check out.</p>
+        <button class="btn-iri" data-wheel-close data-go="shop"><span id="wonCta">SHOP WITH YOUR DISCOUNT</span></button>
+      </div>
     </div>
   </div>
 </div>

@@ -17,8 +17,43 @@
   const pad = (n) => String(n).padStart(2, "0");
   const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 
+  // Everything the shop remembers lives in this browser only.
+  function load(key, fallback) {
+    try { const v = JSON.parse(localStorage.getItem(key)); return v ?? fallback; } catch (e) { return fallback; }
+  }
+  function store(key, value) {
+    try { localStorage.setItem(key, JSON.stringify(value)); } catch (e) {}
+  }
+  const saved = new Set(load("hammie-saved", []).filter((id) => byId[id]));
+
   /* ------------------------------------------------------------------ */
-  /* Cart state (kept in this browser only)                              */
+  /* Discount codes (won on the wheel, or typed in the cart)             */
+  /* ------------------------------------------------------------------ */
+  const CODES = { SQUEAK5: 5, SQUEAK10: 10, SQUEAK15: 15, SQUEAK20: 20, SQUEAK25: 25, SQUEAK30: 30, HAMMIE10: 10 };
+  let discount = load("hammie-code", null);
+  if (!discount || !CODES[discount.code]) discount = null;
+
+  function applyCode(raw) {
+    const code = String(raw).trim().toUpperCase().replace(/\s+/g, "");
+    if (!CODES[code]) return false;
+    discount = { code, pct: CODES[code] };
+    store("hammie-code", discount);
+    return true;
+  }
+  function removeCode() {
+    discount = null;
+    store("hammie-code", null);
+  }
+  function totals() {
+    const subtotal = cartTotal();
+    const pct = discount ? discount.pct : 0;
+    const off = Math.round(subtotal * pct) / 100;
+    return { subtotal, pct, off, total: Math.round((subtotal - off) * 100) / 100 };
+  }
+  const STICKER_GOAL = 150;
+
+  /* ------------------------------------------------------------------ */
+  /* Cart state                                                          */
   /* ------------------------------------------------------------------ */
   const STORE_KEY = "hammie-cart-v2";
   let cart = [];
@@ -43,7 +78,23 @@
   /* ------------------------------------------------------------------ */
   /* Announcement + nav                                                  */
   /* ------------------------------------------------------------------ */
-  $("#announceClose").addEventListener("click", () => $("#announce").classList.add("closed"));
+  $("#logoImg").src = DATA.logo;
+
+  // The announcement bar cycles through a few messages; hovering pauses it.
+  const announce = $("#announce");
+  const msgs = $$("#announceMsgs p");
+  let msgIndex = 0, msgPaused = false;
+  const msgTimer = setInterval(() => {
+    if (msgPaused || announce.classList.contains("closed")) return;
+    msgs[msgIndex].classList.remove("on");
+    msgIndex = (msgIndex + 1) % msgs.length;
+    msgs[msgIndex].classList.add("on");
+  }, 4500);
+  announce.addEventListener("pointerenter", () => { msgPaused = true; });
+  announce.addEventListener("pointerleave", () => { msgPaused = false; });
+  announce.addEventListener("focusin", () => { msgPaused = true; });
+  announce.addEventListener("focusout", () => { msgPaused = false; });
+  $("#announceClose").addEventListener("click", () => { announce.classList.add("closed"); clearInterval(msgTimer); });
 
   const pagesBtn = $("#pagesBtn");
   const pagesMenu = $("#pagesMenu");
@@ -70,7 +121,9 @@
     if (go === "home") return showHome("top");
     if (go === "shop") return showHome("shop");
     if (go === "about") return showHome("about");
-    if (go === "sale") { setSort("sale"); return showHome("shop"); }
+    if (go === "sale") { setFilter("sale"); return showHome("shop"); }
+    if (go === "new") { setFilter(`w${LATEST}`); return showHome("shop"); }
+    if (go === "wheel") return openWheel();
     if (go === "random") {
       const p = PRODUCTS[Math.floor(Math.random() * PRODUCTS.length)];
       return openProduct(p.id);
@@ -84,7 +137,7 @@
   const hangers = [
     // Back row first, so the front tags overlap their cables.
     { id: "glad", left: 13, width: 19, len: "clamp(260px, 50vh, 470px)", amp: "2.2deg", dur: "7s", delay: "-2s", depth: 8, in: ".5s", cls: "back" },
-    { id: "cooked", left: 87, width: 19, len: "clamp(220px, 40vh, 380px)", amp: "2.4deg", dur: "6.6s", delay: "-4s", depth: 10, in: ".6s", cls: "back" },
+    { id: "guitar", left: 87, width: 19, len: "clamp(220px, 40vh, 380px)", amp: "2.4deg", dur: "6.6s", delay: "-4s", depth: 10, in: ".6s", cls: "back" },
     { id: "queen", left: 17, width: 25, len: "clamp(50px, 13vh, 150px)", amp: "3deg", dur: "5.2s", delay: "-1.4s", depth: 26, in: ".25s" },
     { id: "happy", left: 51, width: 44, len: "clamp(80px, 25vh, 260px)", amp: "1.6deg", dur: "6.4s", delay: "-3s", depth: 14, in: ".1s" },
     { id: "tongue", left: 85, width: 24, len: "clamp(24px, 6vh, 80px)", amp: "2.6deg", dur: "5.8s", delay: "-0.6s", depth: 22, in: ".4s" },
@@ -137,12 +190,25 @@
   /* Product grid with sort/filter (FLIP-animated) and scroll reveal     */
   /* ------------------------------------------------------------------ */
   let sortMode = "featured";
+  let filter = "all";
+  let query = "";
+  const LATEST = DATA.latestWave;
   const grid = $("#grid");
   const seg = $("#seg");
   const segInd = $(".seg-ind", seg);
+  const filtersEl = $("#filters");
+  const searchEl = $("#search");
+  const noResults = $("#noResults");
+
+  const HEART = `<svg viewBox="0 0 24 22" aria-hidden="true"><path d="M12 20.5S2 14.4 2 7.6A5.1 5.1 0 0 1 7.2 2.5c2 0 3.7 1.1 4.8 2.8 1.1-1.7 2.8-2.8 4.8-2.8A5.1 5.1 0 0 1 22 7.6c0 6.8-10 12.9-10 12.9z"/></svg>`;
 
   function priceHTML(p) {
     return `${money(p.price)}${p.compare ? `<s aria-label="was">${money(p.compare)}</s>` : ""}`;
+  }
+
+  function heartButton(p, extraClass = "") {
+    const on = saved.has(p.id);
+    return `<button class="heart ${extraClass} ${on ? "on" : ""}" data-save="${p.id}" aria-pressed="${on}" aria-label="Save ${esc(p.name)}">${HEART}</button>`;
   }
 
   function cardHTML(p) {
@@ -151,9 +217,9 @@
         <button class="frame card-media" data-open="${p.id}" aria-label="View ${esc(p.name)}">
           <span class="paper"><img src="${p.img}" alt="${esc(p.name)}: hand-drawn hamster looking ${esc(p.mood.toLowerCase())}" loading="lazy" decoding="async"></span>
           <span class="num">NO. ${pad(p.no)}</span>
-          ${p.new ? `<span class="new-tag">NEW</span>` : ""}
-          ${p.compare ? `<span class="sale-tag">SALE</span>` : ""}
+          <span class="tags">${p.new ? `<span class="new-tag">NEW</span>` : ""}${p.compare ? `<span class="sale-tag">SALE</span>` : ""}</span>
         </button>
+        ${heartButton(p)}
         <button class="quick-add" data-add="${p.id}" aria-label="Add ${esc(p.name)} to cart">+ ADD</button>
       </div>
       <h3 class="card-name">${esc(p.name)}</h3>
@@ -184,12 +250,56 @@
     return el;
   }
 
+  /* Filters: All, one chip per wave (newest first), On sale, Saved. */
+  const FILTERS = [
+    { id: "all", label: "All", test: () => true },
+    ...Array.from({ length: LATEST }, (_, i) => LATEST - i).map((w) => ({
+      id: `w${w}`, label: `Wave ${w}`, isNew: w === LATEST, test: (p) => p.wave === w,
+    })),
+    { id: "sale", label: "On sale", test: (p) => !!p.compare },
+    { id: "saved", label: "Saved", test: (p) => saved.has(p.id) },
+  ];
+  const filterById = Object.fromEntries(FILTERS.map((f) => [f.id, f]));
+
+  function renderFilters() {
+    filtersEl.innerHTML = FILTERS.map((f) => {
+      const n = PRODUCTS.filter(f.test).length;
+      return `<button role="radio" aria-checked="${f.id === filter}" data-filter="${f.id}">
+        ${esc(f.label)}${f.isNew ? `<span class="chip-new">NEW</span>` : ""}<span class="f-count">${n}</span>
+      </button>`;
+    }).join("");
+  }
+  function updateFilterCounts() {
+    FILTERS.forEach((f) => {
+      const el = $(`[data-filter="${f.id}"] .f-count`, filtersEl);
+      if (el) el.textContent = PRODUCTS.filter(f.test).length;
+    });
+  }
+
+  function matches(p) {
+    if (!filterById[filter].test(p)) return false;
+    if (!query) return true;
+    const q = query.toLowerCase();
+    return `${p.name} ${p.mood}`.toLowerCase().includes(q);
+  }
+
   function visibleProducts() {
-    let list = [...PRODUCTS];
-    if (sortMode === "sale") list = list.filter((p) => p.compare);
+    const list = PRODUCTS.filter(matches);
     if (sortMode === "low") list.sort((a, b) => a.price - b.price);
     if (sortMode === "high") list.sort((a, b) => b.price - a.price);
     return list;
+  }
+
+  function renderNoResults(show) {
+    noResults.hidden = !show;
+    if (!show) return;
+    const savedEmpty = filter === "saved" && !query;
+    const face = savedEmpty ? byId.sad : (byId.idek || byId.idk);
+    noResults.innerHTML = `
+      <div class="frame"><div class="paper" style="aspect-ratio:1"><img src="${face.img}" alt=""></div></div>
+      <h3>${savedEmpty ? "Nothing saved yet" : `No hamster feels like “${esc(query || filterById[filter].label)}” yet`}</h3>
+      <p class="muted">${savedEmpty ? "Tap the heart on any hamster to keep it here for later." : "Try another mood, like sad, smug or cooked."}</p>
+      <button class="btn-iri" data-clear-filters><span>SHOW ALL HAMSTERS</span></button>`;
   }
 
   function renderGrid(animate) {
@@ -209,14 +319,17 @@
     grid.appendChild(frag);
 
     const n = list.length;
-    $("#count").textContent = sortMode === "sale" ? `${n} HAMSTERS ON SALE` : `${n} HAMSTERS, ALL ORIGINALS`;
+    const narrowed = filter !== "all" || query;
+    $("#count").textContent = narrowed ? `${n} OF ${PRODUCTS.length} HAMSTERS` : `${n} HAMSTERS, ALL ORIGINALS`;
+    renderNoResults(n === 0);
 
     if (!animate || reduceMotion) return;
     list.forEach((p, i) => {
       const el = grid.children[i];
       if (fresh.has(p.id)) {
+        el.classList.add("in");
         el.animate([{ opacity: 0, transform: "scale(0.96)" }, { opacity: 1, transform: "none" }],
-          { duration: 320, delay: 120, easing: EASE_OUT, fill: "backwards" });
+          { duration: 320, delay: Math.min(i, 8) * 30 + 80, easing: EASE_OUT, fill: "backwards" });
         return;
       }
       el.classList.add("in");
@@ -244,6 +357,13 @@
     renderGrid(true);
   }
 
+  function setFilter(id) {
+    if (!filterById[id]) return;
+    filter = id;
+    $$("[data-filter]", filtersEl).forEach((b) => b.setAttribute("aria-checked", String(b.dataset.filter === id)));
+    renderGrid(true);
+  }
+
   seg.addEventListener("click", (e) => {
     const b = e.target.closest("[data-sort]");
     if (b) setSort(b.dataset.sort);
@@ -256,16 +376,111 @@
     next.focus();
     setSort(next.dataset.sort);
   });
+  filtersEl.addEventListener("click", (e) => {
+    const b = e.target.closest("[data-filter]");
+    if (b) setFilter(b.dataset.filter);
+  });
+  noResults.addEventListener("click", (e) => {
+    if (!e.target.closest("[data-clear-filters]")) return;
+    searchEl.value = "";
+    query = "";
+    setFilter("all");
+  });
 
+  // Search: filters as you type. "/" jumps to the field, Escape clears it.
+  let searchTimer = 0;
+  searchEl.addEventListener("input", () => {
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(() => { query = searchEl.value.trim(); renderGrid(true); }, 140);
+  });
+  searchEl.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && searchEl.value) {
+      e.stopPropagation();
+      searchEl.value = "";
+      query = "";
+      renderGrid(true);
+    }
+  });
+  document.addEventListener("keydown", (e) => {
+    if (e.key !== "/" || e.metaKey || e.ctrlKey) return;
+    if (e.target.closest("input, textarea") || !detail.hidden) return;
+    e.preventDefault();
+    searchEl.focus({ preventScroll: true });
+    searchEl.scrollIntoView({ block: "center", behavior: reduceMotion ? "auto" : "smooth" });
+  });
+
+  /* Wishlist hearts: every heart for the same hamster stays in sync. */
+  const savedBadge = $("#savedBadge");
+  function updateSavedBadge() {
+    savedBadge.textContent = saved.size;
+    savedBadge.classList.toggle("empty", saved.size === 0);
+    $("#savedBtn").setAttribute("aria-label", saved.size ? `Show saved hamsters, ${saved.size} saved` : "Show saved hamsters");
+  }
+  function toggleSave(id) {
+    const p = byId[id];
+    if (saved.has(id)) saved.delete(id); else saved.add(id);
+    store("hammie-saved", [...saved]);
+    const on = saved.has(id);
+    $$(`[data-save="${id}"]`).forEach((b) => {
+      b.classList.toggle("on", on);
+      b.setAttribute("aria-pressed", String(on));
+      if (on && !reduceMotion) {
+        b.querySelector("svg").animate(
+          [{ transform: "scale(1)" }, { transform: "scale(1.35)" }, { transform: "scale(0.92)" }, { transform: "scale(1)" }],
+          { duration: 420, easing: EASE_OUT });
+        b.classList.remove("burst");
+        void b.offsetWidth;
+        b.classList.add("burst");
+      }
+    });
+    updateSavedBadge();
+    updateFilterCounts();
+    if (on && !reduceMotion) {
+      $(".heart-icon").animate([{ transform: "scale(1)" }, { transform: "scale(1.25)" }, { transform: "scale(1)" }],
+        { duration: 360, delay: 120, easing: EASE_OUT });
+    }
+    showToast(id, 0, on ? `Saved ${p.name}` : `Removed ${p.name} from saved`);
+    if (filter === "saved") renderGrid(true);
+  }
+  $("#savedBtn").addEventListener("click", () => {
+    setFilter("saved");
+    showHome("shop");
+  });
+
+  /* Recently viewed (last 4 product pages opened). */
+  let recent = load("hammie-recent", []).filter((id) => byId[id]);
+  function pushRecent(id) {
+    recent = [id, ...recent.filter((x) => x !== id)].slice(0, 8);
+    store("hammie-recent", recent);
+  }
+  function renderRecent() {
+    const sec = $("#recent");
+    const ids = recent.slice(0, 4);
+    sec.hidden = ids.length === 0;
+    const g = $("#recentGrid");
+    g.innerHTML = "";
+    ids.forEach((id, i) => g.appendChild(makeCard(byId[id], i, false)));
+  }
+  $("#recentClear").addEventListener("click", () => {
+    recent = [];
+    store("hammie-recent", recent);
+    renderRecent();
+  });
+
+  renderFilters();
   renderGrid(false);
+  renderRecent();
+  updateSavedBadge();
   segInd.style.transition = "none";
   moveSegIndicator();
   requestAnimationFrame(() => { segInd.style.transition = ""; });
   addEventListener("resize", moveSegIndicator);
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(moveSegIndicator);
 
-  // Grid clicks: open a product, or quick-add one.
+  // Grid clicks: save, open a product, or quick-add one.
   document.addEventListener("click", (e) => {
+    const heart = e.target.closest("[data-save]");
+    if (heart) { toggleSave(heart.dataset.save); return; }
     const add = e.target.closest("[data-add]");
     if (add) {
       const id = add.dataset.add;
@@ -297,6 +512,7 @@
     if (wasDetail) {
       detail.hidden = true;
       home.hidden = false;
+      renderRecent();
       enter(home);
     }
     if (anchor === "back") {
@@ -311,6 +527,7 @@
     const p = byId[id];
     if (!p) return;
     if (!home.hidden) lastHomeScroll = scrollY;
+    pushRecent(id);
     let qty = 1;
 
     const others = PRODUCTS.filter((o) => o.id !== id);
@@ -325,7 +542,7 @@
             <div class="frame" id="tilt"><div class="paper"><img src="${p.img}" alt="${esc(p.name)}: hand-drawn hamster looking ${esc(p.mood.toLowerCase())}"></div></div>
           </div>
           <div class="detail-info">
-            <p class="eyebrow mono">NO. ${pad(p.no)} / ${pad(PRODUCTS.length)} · MOOD: ${esc(p.mood.toUpperCase())}</p>
+            <p class="eyebrow mono">NO. ${pad(p.no)} / ${pad(PRODUCTS.length)} · WAVE ${p.wave} · MOOD: ${esc(p.mood.toUpperCase())}</p>
             <h1 class="detail-title">${esc(p.name)}</h1>
             <p class="detail-price">${priceHTML(p)}</p>
             <p class="desc">${esc(p.blurb)}</p>
@@ -336,11 +553,14 @@
                 <output id="qty" aria-live="polite">1</output>
                 <button data-step="1" aria-label="Increase quantity">+</button>
               </div>
-              <button class="btn-iri add-btn" id="addBtn">
-                <span><span class="label idle">ADD TO CART</span><span class="label done" aria-hidden="true">ADDED ✓</span></span>
-              </button>
+              <div class="buy-actions">
+                ${heartButton(p, "heart-lg")}
+                <button class="btn-iri add-btn" id="addBtn">
+                  <span><span class="label idle">ADD TO CART</span><span class="label done" aria-hidden="true">ADDED ✓</span></span>
+                </button>
+              </div>
             </div>
-            <p class="ship-note muted">FREE SHIPPING ON EVERY HAMSTER, ANYWHERE</p>
+            <p class="ship-note muted">FREE SHIPPING ON EVERY HAMSTER · FREE MYSTERY STICKER OVER $${STICKER_GOAL}</p>
             <div class="acc">
               <button class="acc-btn" aria-expanded="false" aria-controls="accBody" id="accBtn">Hamster Guide <span class="plus" aria-hidden="true"></span></button>
               <div class="acc-body" id="accBody" role="region" aria-labelledby="accBtn">
@@ -470,9 +690,10 @@
 
   const toast = $("#toast");
   let toastTimer = 0;
-  function showToast(id, qty) {
+  function showToast(id, qty, text) {
     const p = byId[id];
-    toast.innerHTML = `<img src="${p.img}" alt=""><span>${qty > 1 ? `${qty} × ` : ""}${esc(p.name)} added</span>`;
+    const label = text || `${qty > 1 ? `${qty} × ` : ""}${p.name} added`;
+    toast.innerHTML = `${p ? `<img src="${p.img}" alt="">` : ""}<span>${esc(label)}</span>`;
     toast.classList.add("show");
     clearTimeout(toastTimer);
     toastTimer = setTimeout(() => toast.classList.remove("show"), 2200);
@@ -512,10 +733,12 @@
   document.addEventListener("keydown", (e) => {
     if (e.key !== "Escape") return;
     if (game) { if (game.running) cancelPay(); return; }
+    if (!wheelModal.hidden) { closeWheel(); return; }
     if (pagesMenu.classList.contains("open")) { setMenu(false); pagesBtn.focus(); return; }
     closeCart();
   });
 
+  let lastProgress = 0;
   function renderCart() {
     const n = cartCount();
     $("#drawerCount").textContent = n ? `(${n})` : "";
@@ -534,7 +757,24 @@
       return;
     }
 
-    body.innerHTML = cart.map((l) => {
+    const t = totals();
+    const progress = Math.min(1, t.subtotal / STICKER_GOAL);
+    const left = STICKER_GOAL - t.subtotal;
+    const reward = `
+      <div class="reward ${left <= 0 ? "done" : ""}">
+        <p>${left > 0 ? `Spend <b>$${left.toFixed(2)}</b> more for a free mystery sticker` : `<b>Mystery sticker unlocked!</b> It ships free with your hamsters.`}</p>
+        <div class="reward-bar"><span style="transform:scaleX(${lastProgress})"></span></div>
+      </div>`;
+    const sticker = left <= 0 ? `
+        <div class="cart-line sticker-line">
+          <div class="sticker-art" aria-hidden="true"><span>?</span></div>
+          <div>
+            <div class="line-top"><p class="line-name">Mystery sticker</p><p class="line-price">FREE</p></div>
+            <p class="line-mood">A surprise hamster from the vault</p>
+          </div>
+        </div>` : "";
+
+    body.innerHTML = reward + cart.map((l) => {
       const p = byId[l.id];
       return `
         <div class="cart-line ${l.fresh ? "entering" : ""}" data-key="${l.key}">
@@ -555,16 +795,45 @@
             </div>
           </div>
         </div>`;
-    }).join("");
+    }).join("") + sticker;
     cart.forEach((l) => delete l.fresh);
 
-    const total = cartTotal();
+    // Grow the reward bar from where it was, not from zero.
+    const bar = $(".reward-bar span", body);
+    requestAnimationFrame(() => requestAnimationFrame(() => { bar.style.transform = `scaleX(${progress})`; }));
+    lastProgress = progress;
+
     foot.innerHTML = `
-      <div class="sum-row"><span>SUBTOTAL</span><span>${money(total)}</span></div>
+      <div class="sum-row"><span>SUBTOTAL</span><span>${money(t.subtotal)}</span></div>
+      ${discount ? `<div class="sum-row disc"><span>DISCOUNT · ${discount.code} <button class="link-btn" id="removeCode" aria-label="Remove discount code">REMOVE</button></span><span>− ${money(t.off)}</span></div>` : ""}
       <div class="sum-row"><span>SHIPPING</span><span>FREE</span></div>
-      <div class="sum-row total"><span>TOTAL</span><span>${money(total)}</span></div>
+      <div class="sum-row total"><span>TOTAL</span><span>${money(t.total)}</span></div>
+      ${discount ? "" : `
+      <form class="code-form" id="codeForm" novalidate>
+        <input id="codeInput" placeholder="Discount code" autocomplete="off" spellcheck="false" aria-label="Discount code" aria-describedby="codeMsg">
+        <button class="code-apply">APPLY</button>
+      </form>
+      <p class="code-msg" id="codeMsg" aria-live="polite">${wheelState ? "" : `No code? <button class="link-btn inline" data-go="wheel">Spin the wheel</button>`}</p>`}
       <button class="btn-iri wide" id="checkout"><span>CHECKOUT</span></button>`;
     $("#checkout").addEventListener("click", renderPayment);
+    const rm = $("#removeCode", foot);
+    if (rm) rm.addEventListener("click", () => { removeCode(); renderCart(); });
+    const form = $("#codeForm", foot);
+    if (form) form.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const input = $("#codeInput", foot);
+      if (applyCode(input.value)) {
+        renderCart();
+        toast.innerHTML = `<span>Code ${esc(discount.code)} applied: ${discount.pct}% off</span>`;
+        toast.classList.add("show");
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => toast.classList.remove("show"), 2200);
+      } else {
+        $("#codeMsg", foot).textContent = input.value.trim() ? "That code isn't one of ours. Try spinning the wheel." : "Type a code first.";
+        if (!reduceMotion) input.animate([{ transform: "translateX(0)" }, { transform: "translateX(-6px)" }, { transform: "translateX(5px)" }, { transform: "translateX(-3px)" }, { transform: "translateX(0)" }], { duration: 300, easing: "ease-out" });
+        input.focus();
+      }
+    });
   }
 
   body.addEventListener("click", (e) => {
@@ -611,7 +880,8 @@
 
   // Drawer step between the cart and the game.
   function renderPayment() {
-    const total = cartTotal();
+    const t = totals();
+    const total = t.total;
     const count = cartCount();
     const apples = Math.ceil(total / APPLE_VALUE);
     body.innerHTML = `
@@ -620,7 +890,8 @@
         <p class="eyebrow mono">STEP 2 OF 2 · PAYMENT</p>
         <h3>How would you like to pay?</h3>
         <div class="pay-summary">
-          <div class="sum-row"><span>${count} HAMSTER${count === 1 ? "" : "S"}</span><span>${money(total)}</span></div>
+          <div class="sum-row"><span>${count} HAMSTER${count === 1 ? "" : "S"}</span><span>${money(t.subtotal)}</span></div>
+          ${discount ? `<div class="sum-row disc"><span>DISCOUNT · ${discount.code}</span><span>− ${money(t.off)}</span></div>` : ""}
           <div class="sum-row"><span>SHIPPING</span><span>FREE</span></div>
           <div class="sum-row total"><span>TO PAY</span><span>${money(total)}</span></div>
         </div>
@@ -644,7 +915,7 @@
   }
 
   function startPay() {
-    const total = cartTotal();
+    const total = totals().total;
     if (!total) return;
     game = {
       total, got: 0, caught: 0, items: [], running: true,
@@ -784,15 +1055,18 @@
   function win() {
     stopGame();
     const { total, got, caught } = game;
-    const change = got - total;
+    const change = Math.round((got - total) * 100) / 100;
+    const usedCode = discount ? discount.code : null;
     cart = [];
     save();
+    removeCode();
     updateBadge(false);
     renderCart();
 
     $("#payDoneText").innerHTML =
       `You paid ${money(total)} with <b>${caught}</b> apple${caught === 1 ? "" : "s"}.` +
-      (change > 0 ? ` Keep the change ($${change}).` : "") +
+      (usedCode ? ` Code ${usedCode} saved you some apples.` : "") +
+      (change > 0 ? ` Keep the change ($${Number.isInteger(change) ? change : change.toFixed(2)}).` : "") +
       " Your hamsters are on their way.";
     pay.classList.add("done");
     payDone.hidden = false;
@@ -831,6 +1105,192 @@
         fill: "backwards",
       }).onfinish = () => img.remove();
     }
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* Spin the wheel: one spin per visitor, every slice wins a code        */
+  /* ------------------------------------------------------------------ */
+  const SLICES = [5, 15, 10, 25, 5, 20, 10, 30];          // % off, clockwise from the top
+  const ODDS = { 5: 18, 10: 14, 15: 16, 20: 10, 25: 6, 30: 4 }; // weight per slice
+  const SLICE_COLORS = ["#5b8cff", "#b07bff", "#ff86c8", "#ffd37a"];
+  const SEG = 360 / SLICES.length;
+  const wheelModal = $("#wheelModal");
+  const wheelEl = $("#wheel");
+  const pointerEl = $("#wheelPointer");
+  const spinBtn = $("#spinBtn");
+  const spinPill = $("#spinPill");
+  let wheelState = load("hammie-wheel", null);
+  let spinning = false;
+  let wheelLastFocus = null;
+
+  $("#hubImg").src = DATA.logo;
+
+  (function drawWheel() {
+    const polar = (r, deg) => {
+      const a = ((deg - 90) * Math.PI) / 180;
+      return [(r * Math.cos(a)).toFixed(2), (r * Math.sin(a)).toFixed(2)];
+    };
+    let svg = `<svg viewBox="-106 -106 212 212"><circle r="104" fill="#0e0e18" stroke="rgba(244,242,238,.24)" stroke-width="1"/>`;
+    SLICES.forEach((pct, i) => {
+      const a0 = i * SEG, a1 = a0 + SEG, mid = a0 + SEG / 2;
+      const [x0, y0] = polar(94, a0), [x1, y1] = polar(94, a1);
+      const jackpot = pct === 30;
+      const fill = jackpot ? "url(#iri)" : i % 2 ? "#15151f" : SLICE_COLORS[(i / 2) % 4];
+      const ink = jackpot || i % 2 === 0 ? "#07070d" : "#f4f2ee";
+      svg += `<path class="slice" data-slice="${i}" d="M0 0L${x0} ${y0}A94 94 0 0 1 ${x1} ${y1}Z" fill="${fill}" stroke="#07070d" stroke-width="1.5"/>`;
+      svg += `<g transform="rotate(${mid})" fill="${ink}" text-anchor="middle">
+        <text y="-56" font-size="${jackpot ? 19 : 21}" font-weight="600" font-family="Schibsted Grotesk, sans-serif">${pct}%</text>
+        <text y="-42" font-size="${jackpot ? 6 : 7.5}" letter-spacing="${jackpot ? 0.6 : 1.2}" font-family="JetBrains Mono, monospace">${jackpot ? "JACKPOT" : "OFF"}</text>
+      </g>`;
+    });
+    for (let i = 0; i < 16; i++) {
+      const [x, y] = polar(99.5, i * 22.5 + 11.25);
+      svg += `<circle class="bulb ${i % 2 ? "b2" : "b1"}" cx="${x}" cy="${y}" r="2.4"/>`;
+    }
+    wheelEl.innerHTML = svg + "</svg>";
+  })();
+
+  function pickSlice() {
+    const total = SLICES.reduce((n, pct) => n + ODDS[pct], 0);
+    let r = Math.random() * total;
+    for (let i = 0; i < SLICES.length; i++) {
+      r -= ODDS[SLICES[i]];
+      if (r < 0) return i;
+    }
+    return 0;
+  }
+
+  function updatePill() {
+    spinPill.hidden = !!wheelState;
+  }
+
+  function showWon(animate) {
+    const { pct, code, slice } = wheelState;
+    $("#wonBig").innerHTML = pct === 30 ? `30% OFF<span>JACKPOT!</span>` : `${pct}% OFF`;
+    $("#wonCode").textContent = code;
+    $("#wonCta").textContent = `SHOP WITH ${pct}% OFF`;
+    $$(".slice", wheelEl).forEach((s) => s.classList.toggle("win", Number(s.dataset.slice) === slice));
+    const ask = $("#wheelAsk"), won = $("#wheelWon");
+    if (!animate || reduceMotion) { ask.hidden = true; won.hidden = false; return; }
+    ask.animate([{ opacity: 1, filter: "blur(0)" }, { opacity: 0, filter: "blur(4px)" }], { duration: 180, easing: "ease" }).onfinish = () => {
+      ask.hidden = true;
+      won.hidden = false;
+      won.animate([{ opacity: 0, filter: "blur(4px)", transform: "translateY(8px)" }, { opacity: 1, filter: "blur(0)", transform: "none" }],
+        { duration: 320, easing: EASE_OUT });
+      $(".wheel-hub").animate([{ transform: "translate(-50%,-50%) scale(1)" }, { transform: "translate(-50%,-50%) scale(1.18)" }, { transform: "translate(-50%,-50%) scale(1)" }],
+        { duration: 500, easing: EASE_OUT });
+    };
+  }
+
+  function openWheel() {
+    if (!wheelModal.hidden) return;
+    wheelLastFocus = document.activeElement;
+    wheelModal.hidden = false;
+    if (wheelState) {
+      wheelEl.style.transition = "none";
+      wheelEl.style.transform = `rotate(${wheelState.rot}deg)`;
+      showWon(false);
+    } else {
+      $("#wheelAsk").hidden = false;
+      $("#wheelWon").hidden = true;
+    }
+    void wheelModal.offsetWidth;
+    wheelModal.classList.add("open");
+    document.body.classList.add("locked");
+    setTimeout(() => (wheelState ? $("#copyCode") : spinBtn).focus({ preventScroll: true }), 60);
+  }
+
+  function closeWheel() {
+    if (wheelModal.hidden || spinning) return;
+    wheelModal.classList.remove("open");
+    try { sessionStorage.setItem("hammie-wheel-later", "1"); } catch (e) {}
+    if (!drawer.classList.contains("open")) document.body.classList.remove("locked");
+    setTimeout(() => { wheelModal.hidden = true; }, 220);
+    if (wheelLastFocus && wheelLastFocus.isConnected) wheelLastFocus.focus({ preventScroll: true });
+  }
+
+  function spin() {
+    if (spinning || wheelState) return;
+    spinning = true;
+    spinBtn.disabled = true;
+    const slice = pickSlice();
+    const mid = slice * SEG + SEG / 2;
+    const jitter = (Math.random() - 0.5) * (SEG - 14);
+    const rot = 360 * (reduceMotion ? 2 : 6) + (360 - mid - jitter);
+    const dur = reduceMotion ? 1200 : 5200;
+
+    wheelEl.style.transition = "none";
+    wheelEl.style.transform = "rotate(0deg)";
+    void wheelEl.offsetWidth;
+    wheelEl.style.transition = `transform ${dur}ms cubic-bezier(0.12, 0.7, 0.08, 1)`;
+    wheelEl.style.transform = `rotate(${rot}deg)`;
+    wheelModal.classList.add("spinning");
+
+    // The pointer flicks every time a slice edge passes under it.
+    let lastIdx = -1;
+    const track = () => {
+      if (!spinning) return;
+      const m = getComputedStyle(wheelEl).transform;
+      if (m && m !== "none") {
+        const [a, b] = m.slice(m.indexOf("(") + 1, -1).split(",").map(Number);
+        const ang = (Math.atan2(b, a) * 180 / Math.PI + 360) % 360;
+        const idx = Math.floor(((360 - ang) % 360) / SEG);
+        if (lastIdx !== -1 && idx !== lastIdx && !reduceMotion) {
+          pointerEl.animate([{ transform: "translateX(-50%) rotate(0)" }, { transform: "translateX(-50%) rotate(-24deg)" }, { transform: "translateX(-50%) rotate(0)" }],
+            { duration: 130, easing: "ease-out" });
+        }
+        lastIdx = idx;
+      }
+      requestAnimationFrame(track);
+    };
+    requestAnimationFrame(track);
+
+    setTimeout(() => {
+      spinning = false;
+      spinBtn.disabled = false;
+      wheelModal.classList.remove("spinning");
+      const pct = SLICES[slice];
+      wheelState = { pct, code: `SQUEAK${pct}`, slice, rot };
+      store("hammie-wheel", wheelState);
+      if (!discount || discount.pct <= pct) applyCode(wheelState.code);
+      renderCart();
+      updatePill();
+      showWon(true);
+      $("#copyCode").focus({ preventScroll: true });
+    }, dur + 60);
+  }
+
+  spinBtn.addEventListener("click", spin);
+  document.addEventListener("click", (e) => {
+    if (e.target.closest("[data-wheel-close]")) closeWheel();
+  });
+  $("#copyCode").addEventListener("click", async () => {
+    const btn = $("#copyCode");
+    try {
+      await navigator.clipboard.writeText(wheelState.code);
+      btn.textContent = "COPIED";
+    } catch (e) {
+      const range = document.createRange();
+      range.selectNodeContents($("#wonCode"));
+      const sel = getSelection();
+      sel.removeAllRanges();
+      sel.addRange(range);
+      btn.textContent = "SELECTED";
+    }
+    setTimeout(() => { btn.textContent = "COPY"; }, 1600);
+  });
+
+  // First visit: offer the wheel once the visitor has had a moment to look around.
+  updatePill();
+  let laterAsked = false;
+  try { laterAsked = sessionStorage.getItem("hammie-wheel-later") === "1"; } catch (e) {}
+  if (!wheelState && !laterAsked) {
+    const tryOpen = () => {
+      const busy = drawer.classList.contains("open") || (game && game.running) || document.activeElement === searchEl;
+      if (busy) return setTimeout(tryOpen, 4000);
+      if (!wheelState) openWheel();
+    };
+    setTimeout(tryOpen, 9000);
   }
 
   updateBadge(false);
