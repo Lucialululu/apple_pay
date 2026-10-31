@@ -12,7 +12,7 @@ hamster for its own page and add it to the cart. Spend $150 and a free mystery
 sticker joins your order.
 
 <p align="center">
-  <img src="store_examples/item_example.png" width="500" alt="Hammie Shop item example" />
+  <img src="store_examples/item_examples.png" width="500" alt="Hammie Shop item example" />
 </p>
 
 
@@ -46,3 +46,8 @@ uv run streamlit run app.py
 | `food_icons/` | The fruit that falls during the Apple Pay checkout. |
 
 The cart is saved in the visitor's own browser, so it survives a refresh.
+
+
+<p align="center">
+  <img src="hamster_images/hamster_in_awe.JPG" width="500" alt="Hammie Shop item example" />
+</p>
