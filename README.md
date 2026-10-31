@@ -8,9 +8,11 @@ no real payment, just a small celebration.
 
 ## Run it locally
 
+Needs [uv](https://docs.astral.sh/uv/). uv installs the right Python and the
+dependencies for you on the first run.
+
 ```bash
-pip install -r requirements.txt
-streamlit run app.py
+uv run streamlit run app.py
 ```
 
 ## Deploy on Streamlit Community Cloud
@@ -23,6 +25,7 @@ streamlit run app.py
 
 | Path | What it is |
 | --- | --- |
+| `pyproject.toml`, `uv.lock`, `.python-version` | Dependencies and Python version, managed by uv. |
 | `app.py` | Streamlit entry point. Inlines the images and renders the shop full-screen. |
 | `products.py` | The catalog: names, moods, descriptions and prices ($50–$100). Edit freely. |
 | `shop/index.html`, `shop/styles.css`, `shop/app.js` | The storefront: layout, styles, cart and animations. |
