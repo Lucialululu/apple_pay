@@ -13,7 +13,7 @@ PRODUCTS = [
     # ---- Wave 3 (newest: shown first, tagged NEW) ----
     {"id": "finally_free", "file": "wave_3/hamster_FINALLY_FREE.JPG", "name": "Finally-Free Hamster", "mood": "Liberated", "price": 86, "compare_at": None,
      "blurb": "Yay, it surved the exams!"},
-    {"id": "i_cry", "file": "wave_3/hamster_i_cry.JPG", "name": "I-Cry Hamster", "mood": "Ugly crying", "price": 78, "compare_at": None,
+    {"id": "i_cry", "file": "wave_3/hamster_I_cry.JPG", "name": "I-Cry Hamster", "mood": "Ugly crying", "price": 78, "compare_at": None,
      "blurb": "I think a tissue box will do it a huge favour."},
     {"id": "worried", "file": "wave_3/hamster_a_bit_worried.JPG", "name": "A-Bit-Worried Hamster", "mood": "Peeking", "price": 59, "compare_at": None,
      "blurb": "'Yo, let's do some leet codes together', sombody asked."},
