@@ -22,12 +22,19 @@ HAMSTERS = ROOT / "hamster_images"
 FOOD = ROOT / "food_icons"
 SHOP = ROOT / "shop"
 LOGO_SOURCE = HAMSTERS / "hamster_what.JPG"
-LOGO_CROP = (270, 270, 930, 930)  # the face of hamster_what, as a square
+# A square cut of hamster_what with the hamster in the middle. The drawing's
+# centre line sits right of the photo's centre, so we centre on the hamster.
+LOGO_CENTER_X = 660  # pixel column of the hamster's nose
+LOGO_TOP = 270       # a little space above the head
+LOGO_SIZE = 860      # side of the square; smaller zooms in on the face
 
 
 def logo_image(size: int) -> Image.Image:
-    img = Image.open(LOGO_SOURCE).convert("RGB").crop(LOGO_CROP)
-    return img.resize((size, size), Image.LANCZOS)
+    img = Image.open(LOGO_SOURCE).convert("RGB")
+    left = LOGO_CENTER_X - LOGO_SIZE // 2
+    square = Image.new("RGB", (LOGO_SIZE, LOGO_SIZE), "white")
+    square.paste(img.crop((left, LOGO_TOP, left + LOGO_SIZE, LOGO_TOP + LOGO_SIZE)), (0, 0))
+    return square.resize((size, size), Image.LANCZOS)
 
 
 st.set_page_config(
@@ -117,7 +124,7 @@ def build_page(version: float) -> str:
         for f in FRUIT
     ]
     buf = io.BytesIO()
-    logo_image(160).save(buf, "JPEG", quality=88)
+    logo_image(200).save(buf, "JPEG", quality=90)
     logo = "data:image/jpeg;base64," + base64.b64encode(buf.getvalue()).decode()
     payload = json.dumps({"products": products, "fruit": fruit, "logo": logo, "latestWave": latest}).replace("</", "<\\/")
 

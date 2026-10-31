@@ -122,7 +122,7 @@
     if (go === "shop") return showHome("shop");
     if (go === "about") return showHome("about");
     if (go === "sale") { setFilter("sale"); return showHome("shop"); }
-    if (go === "new") { setFilter(`w${LATEST}`); return showHome("shop"); }
+    if (go === "new") { setFilter("new"); return showHome("shop"); }
     if (go === "wheel") return openWheel();
     if (go === "random") {
       const p = PRODUCTS[Math.floor(Math.random() * PRODUCTS.length)];
@@ -192,7 +192,6 @@
   let sortMode = "featured";
   let filter = "all";
   let query = "";
-  const LATEST = DATA.latestWave;
   const grid = $("#grid");
   const seg = $("#seg");
   const segInd = $(".seg-ind", seg);
@@ -250,12 +249,10 @@
     return el;
   }
 
-  /* Filters: All, one chip per wave (newest first), On sale, Saved. */
+  /* Filters: All, New (the latest drop), On sale, Saved. */
   const FILTERS = [
     { id: "all", label: "All", test: () => true },
-    ...Array.from({ length: LATEST }, (_, i) => LATEST - i).map((w) => ({
-      id: `w${w}`, label: `Wave ${w}`, isNew: w === LATEST, test: (p) => p.wave === w,
-    })),
+    { id: "new", label: "New", isNew: true, test: (p) => p.new },
     { id: "sale", label: "On sale", test: (p) => !!p.compare },
     { id: "saved", label: "Saved", test: (p) => saved.has(p.id) },
   ];
@@ -265,7 +262,7 @@
     filtersEl.innerHTML = FILTERS.map((f) => {
       const n = PRODUCTS.filter(f.test).length;
       return `<button role="radio" aria-checked="${f.id === filter}" data-filter="${f.id}">
-        ${esc(f.label)}${f.isNew ? `<span class="chip-new">NEW</span>` : ""}<span class="f-count">${n}</span>
+        ${f.isNew ? `<span class="chip-new">NEW</span>` : esc(f.label)}<span class="f-count">${n}</span>
       </button>`;
     }).join("");
   }
@@ -542,7 +539,7 @@
             <div class="frame" id="tilt"><div class="paper"><img src="${p.img}" alt="${esc(p.name)}: hand-drawn hamster looking ${esc(p.mood.toLowerCase())}"></div></div>
           </div>
           <div class="detail-info">
-            <p class="eyebrow mono">NO. ${pad(p.no)} / ${pad(PRODUCTS.length)} · WAVE ${p.wave} · MOOD: ${esc(p.mood.toUpperCase())}</p>
+            <p class="eyebrow mono">NO. ${pad(p.no)} / ${pad(PRODUCTS.length)}${p.new ? " · NEW" : ""} · MOOD: ${esc(p.mood.toUpperCase())}</p>
             <h1 class="detail-title">${esc(p.name)}</h1>
             <p class="detail-price">${priceHTML(p)}</p>
             <p class="desc">${esc(p.blurb)}</p>

@@ -3,7 +3,7 @@
 A tiny, just-for-fun storefront for hand-drawn hamsters, built with Streamlit.
 
 Browse 56 moods across three waves (Sus, Queen, Ded, Guitar…), search by name
-or mood, filter by wave, sale or saved, and heart the ones you like. Open any
+or mood, filter by new, on sale or saved, and heart the ones you like. Open any
 hamster for its own page and add it to the cart. Spend $150 and a free mystery
 sticker joins your order.
 
@@ -40,7 +40,7 @@ uv run streamlit run app.py
 | `hamster_images/hamster_what.JPG` | Also the shop's logo and browser-tab icon. |
 | `products.py` | The catalog (names, moods, descriptions, prices $50–$100) and the fruit for the checkout game. Edit freely. |
 | `shop/index.html`, `shop/styles.css`, `shop/app.js` | The storefront: layout, styles, cart and animations. |
-| `hamster_images/` | The hamster drawings (the products). Each new wave gets its own folder (`wave_2/`, `wave_3/`…); the newest one is tagged NEW. |
+| `hamster_images/` | The hamster drawings (the products). Each new drop gets its own folder (`wave_2/`, `wave_3/`…); the newest folder's hamsters are tagged NEW. |
 | `food_icons/` | The fruit that falls during the Apple Pay checkout. |
 
 The cart is saved in the visitor's own browser, so it survives a refresh.
