@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hammie Shop</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>/*__CSS__*/</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="iri" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#5b8cff"/><stop offset=".35" stop-color="#b07bff"/>
+      <stop offset=".65" stop-color="#ff86c8"/><stop offset="1" stop-color="#ffd37a"/>
+    </linearGradient>
+  </defs>
+</svg>
+
+<div class="announce" id="announce">
+  <div class="announce-inner">
+    <div class="announce-msgs" id="announceMsgs" aria-live="off">
+      <p class="on">WAVE 3 IS HERE - 20 new hamsters just dropped.</p>
+      <p><button class="announce-link" data-go="wheel">SPIN THE WHEEL</button> - win up to 30% off your adoption.</p>
+      <p>FREE SHIPPING, always. Spend $150 and get a free mystery sticker.</p>
+    </div>
+    <button class="icon-btn" id="announceClose" aria-label="Dismiss announcement">
+      <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M2 2l10 10M12 2L2 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+    </button>
+  </div>
+</div>
+
+<header class="nav" id="nav">
+  <div class="shell nav-row">
+    <a class="logo" href="#" data-go="home" aria-label="Hammie Shop home">
+      <span class="logo-mark"><img id="logoImg" alt=""></span>
+      <span class="logo-type"><small>HAMMIE</small><b>SHOP</b></span>
+    </a>
+    <nav class="links" aria-label="Main">
+      <a href="#" data-go="home">Home</a>
+      <a href="#" data-go="shop">Shop</a>
+      <div class="menu">
+        <button class="menu-trigger" id="pagesBtn" aria-haspopup="true" aria-expanded="false" aria-controls="pagesMenu">
+          Pages <svg width="10" height="6" viewBox="0 0 10 6" aria-hidden="true"><path d="M0 0h10L5 6z" fill="currentColor"/></svg>
+        </button>
+        <div class="menu-pop" id="pagesMenu" role="menu">
+          <button role="menuitem" data-go="new">New arrivals</button>
+          <button role="menuitem" data-go="sale">On sale</button>
+          <button role="menuitem" data-go="wheel">Spin the wheel</button>
+          <button role="menuitem" data-go="random">Surprise me</button>
+          <button role="menuitem" data-go="about">About</button>
+        </div>
+      </div>
+    </nav>
+    <button class="cart-btn saved-btn" id="savedBtn" aria-label="Show saved hamsters">
+      <svg width="26" height="24" viewBox="0 0 24 22" aria-hidden="true" class="heart-icon">
+        <path d="M12 20.5S2 14.4 2 7.6A5.1 5.1 0 0 1 7.2 2.5c2 0 3.7 1.1 4.8 2.8 1.1-1.7 2.8-2.8 4.8-2.8A5.1 5.1 0 0 1 22 7.6c0 6.8-10 12.9-10 12.9z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+      </svg>
+      <span class="badge empty" id="savedBadge">0</span>
+    </button>
+    <button class="cart-btn" id="cartBtn" aria-label="Open cart">
+      <svg width="30" height="28" viewBox="0 0 30 28" aria-hidden="true" class="cart-icon">
+        <path d="M10 9V7a5 5 0 0 1 10 0v2" fill="none" stroke="currentColor" stroke-width="2"/>
+        <path d="M3 9h24l-2 16H5z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+        <path d="M3 14h24" stroke="currentColor" stroke-width="2"/>
+      </svg>
+      <span class="badge" id="badge" aria-live="polite">0</span>
+    </button>
+  </div>
+</header>
+
+<div id="views">
+  <main id="home" class="view">
+    <section class="shell hero" id="top">
+      <div class="hero-copy">
+        <h1 class="hero-title">
+          <span class="line"><span>Coolest hamster</span></span>
+          <span class="line"><span>art, ever.</span></span>
+        </h1>
+        <p class="hero-sub reveal-up">A growing herd of hand-drawn hamsters, each wearing a mood you will recognize from your own Monday. Adopt one- Adopt five. They are happier in groups.</p>
+        <div class="reveal-up" style="--d:.28s">
+          <button class="btn-iri" data-go="shop"><span>SHOP NOW</span></button>
+        </div>
+      </div>
+      <div class="hero-art" id="heroArt" aria-hidden="true"></div>
+    </section>
+
+    <div class="marquee" aria-hidden="true"><div class="marquee-track" id="marquee"></div></div>
+
+    <section class="shell collection" id="shop">
+      <h2 class="section-title">Latest Additions</h2>
+      <div class="toolbar">
+        <label class="search">
+          <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><circle cx="7.5" cy="7.5" r="5.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M11.8 11.8L16 16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          <span class="sr-only">Search hamsters</span>
+          <input id="search" type="search" placeholder="Search by name or mood" autocomplete="off" spellcheck="false">
+          <kbd aria-hidden="true">/</kbd>
+        </label>
+        <div class="seg" role="radiogroup" aria-label="Sort" id="seg">
+          <span class="seg-ind" aria-hidden="true"></span>
+          <button role="radio" aria-checked="true" data-sort="featured">Featured</button>
+          <button role="radio" aria-checked="false" data-sort="low">Price ↑</button>
+          <button role="radio" aria-checked="false" data-sort="high">Price ↓</button>
+        </div>
+      </div>
+      <div class="filter-row">
+        <div class="filters" role="radiogroup" aria-label="Filter" id="filters"></div>
+        <p class="mono muted count" id="count" aria-live="polite"></p>
+      </div>
+      <div class="grid" id="grid"></div>
+      <div class="no-results" id="noResults" hidden></div>
+    </section>
+
+    <section class="shell recent" id="recent" hidden>
+      <div class="recent-head">
+        <h2>Recently viewed</h2>
+        <button class="link-btn" id="recentClear">CLEAR</button>
+      </div>
+      <div class="grid" id="recentGrid"></div>
+    </section>
+
+    <section class="shell about" id="about">
+      <div>
+        <p class="eyebrow mono">ABOUT</p>
+        <h2>One hamster for every feeling you've had this week.</h2>
+      </div>
+      <div class="about-cols">
+        <p>Every hamster here are unserious, mildly dramatic, and extremely loyal.</p>
+        <p>We take Apple Pay only.</p>
+      </div>
+    </section>
+  </main>
+
+  <main id="detail" class="view" hidden></main>
+</div>
+
+<footer class="footer">
+  <div class="shell footer-row">
+    <p class="mono">© 2026 HAMMIE SHOP</p>
+    <p class="muted">Prices are made up, but the the feelings are real.</p>
+  </div>
+</footer>
+
+<div class="scrim" id="scrim"></div>
+<aside class="drawer" id="drawer" role="dialog" aria-modal="true" aria-labelledby="drawerTitle" aria-hidden="true" inert>
+  <div class="drawer-head">
+    <h2 id="drawerTitle">Your cart <span class="mono muted" id="drawerCount"></span></h2>
+    <button class="icon-btn" id="drawerClose" aria-label="Close cart">
+      <svg width="16" height="16" viewBox="0 0 14 14" aria-hidden="true"><path d="M2 2l10 10M12 2L2 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+    </button>
+  </div>
+  <div class="drawer-body" id="drawerBody"></div>
+  <div class="drawer-foot" id="drawerFoot"></div>
+</aside>
+
+<div class="pay" id="pay" role="dialog" aria-modal="true" aria-labelledby="payTitle" hidden>
+  <div class="pay-hud">
+    <div class="pay-hud-row">
+      <p class="pay-title" id="payTitle">Apple Pay</p>
+      <button class="icon-btn" id="payCancel" aria-label="Cancel payment">
+        <svg width="16" height="16" viewBox="0 0 14 14" aria-hidden="true"><path d="M2 2l10 10M12 2L2 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+    <div class="pay-stats">
+      <div><p class="mono muted">TOTAL</p><p class="pay-num" id="payTotal"></p></div>
+      <div class="right"><p class="mono muted">COLLECTED</p><p class="pay-num" id="payGot" aria-live="polite"></p></div>
+    </div>
+    <div class="pay-bar" aria-hidden="true"><span id="payFill"></span></div>
+    <p class="pay-hint">Tap the apples, each one is worth $5.</p>
+  </div>
+  <div class="pay-arena" id="arena"></div>
+  <div class="pay-done" id="payDone" hidden>
+    <div class="pay-done-card">
+      <svg class="check" viewBox="0 0 64 64" aria-hidden="true">
+        <circle cx="32" cy="32" r="29" fill="none" stroke="url(#iri)" stroke-width="4"/>
+        <path d="M19 33l9 9 18-19" fill="none" stroke="#f4f2ee" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <h2>Payment successful!</h2>
+      <p id="payDoneText"></p>
+      <button class="btn-iri" id="payDoneBtn"><span>BACK TO THE SHOP</span></button>
+    </div>
+  </div>
+</div>
+
+<button class="spin-pill" id="spinPill" data-go="wheel" hidden>
+  <span class="mini-wheel" aria-hidden="true"></span><span>Spin to win</span>
+</button>
+
+<div class="modal" id="wheelModal" role="dialog" aria-modal="true" aria-labelledby="wheelTitle" hidden>
+  <div class="modal-scrim" data-wheel-close></div>
+  <div class="modal-card wheel-card">
+    <button class="icon-btn modal-close" data-wheel-close aria-label="Close">
+      <svg width="16" height="16" viewBox="0 0 14 14" aria-hidden="true"><path d="M2 2l10 10M12 2L2 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+    </button>
+    <div class="wheel-stage">
+      <div class="wheel-pointer" id="wheelPointer" aria-hidden="true"></div>
+      <div class="wheel" id="wheel" aria-hidden="true"></div>
+      <div class="wheel-hub" aria-hidden="true"><img id="hubImg" alt=""></div>
+    </div>
+    <div class="wheel-copy">
+      <div class="wheel-ask" id="wheelAsk">
+        <p class="eyebrow mono">ONE SPIN PER VISITOR</p>
+        <h2 id="wheelTitle">Spin the wheel, win a discount</h2>
+        <p class="muted">Every slice wins something. Up to 30% off your whole adoption, applied straight to your cart.</p>
+        <button class="btn-iri" id="spinBtn"><span>SPIN THE WHEEL</span></button>
+        <button class="link-btn later" data-wheel-close>MAYBE LATER</button>
+      </div>
+      <div class="wheel-won" id="wheelWon" hidden>
+        <p class="eyebrow mono">YOU WON</p>
+        <p class="won-big" id="wonBig"></p>
+        <div class="code-box">
+          <span class="mono" id="wonCode"></span>
+          <button class="link-btn" id="copyCode">COPY</button>
+        </div>
+        <p class="muted">Already applied to your cart. It sticks around until you check out.</p>
+        <button class="btn-iri" data-wheel-close data-go="shop"><span id="wonCta">SHOP WITH YOUR DISCOUNT</span></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>/*__DATA__*/</script>
+<script>/*__JS__*/</script>
+</body>
+</html>
