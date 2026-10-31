@@ -1116,7 +1116,17 @@
   const pointerEl = $("#wheelPointer");
   const spinBtn = $("#spinBtn");
   const spinPill = $("#spinPill");
-  let wheelState = load("hammie-wheel", null);
+  // The spin is remembered for this visit only (sessionStorage), so every new
+  // visit gets a fresh spin. The won code itself stays in the cart.
+  const WHEEL_DELAY_MS = 10000; // popup appears after 10 seconds of browsing
+  function sessionLoad(key) {
+    try { return JSON.parse(sessionStorage.getItem(key)); } catch (e) { return null; }
+  }
+  function sessionStore(key, value) {
+    try { sessionStorage.setItem(key, JSON.stringify(value)); } catch (e) {}
+  }
+  try { localStorage.removeItem("hammie-wheel"); } catch (e) {} // old "once ever" spin record
+  let wheelState = sessionLoad("hammie-wheel");
   let spinning = false;
   let wheelLastFocus = null;
 
@@ -1248,7 +1258,7 @@
       wheelModal.classList.remove("spinning");
       const pct = SLICES[slice];
       wheelState = { pct, code: `SQUEAK${pct}`, slice, rot };
-      store("hammie-wheel", wheelState);
+      sessionStore("hammie-wheel", wheelState);
       if (!discount || discount.pct <= pct) applyCode(wheelState.code);
       renderCart();
       updatePill();
@@ -1277,7 +1287,7 @@
     setTimeout(() => { btn.textContent = "COPY"; }, 1600);
   });
 
-  // First visit: offer the wheel once the visitor has had a moment to look around.
+  // Every visit: offer the wheel once the visitor has browsed for a moment.
   updatePill();
   let laterAsked = false;
   try { laterAsked = sessionStorage.getItem("hammie-wheel-later") === "1"; } catch (e) {}
@@ -1287,7 +1297,7 @@
       if (busy) return setTimeout(tryOpen, 4000);
       if (!wheelState) openWheel();
     };
-    setTimeout(tryOpen, 9000);
+    setTimeout(tryOpen, WHEEL_DELAY_MS);
   }
 
   updateBadge(false);
