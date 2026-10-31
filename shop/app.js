@@ -50,7 +50,7 @@
     const off = Math.round(subtotal * pct) / 100;
     return { subtotal, pct, off, total: Math.round((subtotal - off) * 100) / 100 };
   }
-  const STICKER_GOAL = 150;
+  const MYSTERY_GOAL = 150;
 
   /* ------------------------------------------------------------------ */
   /* Cart state                                                          */
@@ -121,6 +121,7 @@
     if (go === "home") return showHome("top");
     if (go === "shop") return showHome("shop");
     if (go === "about") return showHome("about");
+    if (go === "purchases") return showPurchases();
     if (go === "sale") { setFilter("sale"); return showHome("shop"); }
     if (go === "new") { setFilter("new"); return showHome("shop"); }
     if (go === "wheel") return openWheel();
@@ -504,10 +505,13 @@
     view.classList.add("view-enter");
   }
 
+  let detailFrom = "home"; // where the product page's back button returns to
+
   function showHome(anchor) {
-    const wasDetail = !detail.hidden;
+    const wasDetail = !detail.hidden || !purchasesView.hidden;
     if (wasDetail) {
       detail.hidden = true;
+      purchasesView.hidden = true;
       home.hidden = false;
       renderRecent();
       enter(home);
@@ -524,6 +528,7 @@
     const p = byId[id];
     if (!p) return;
     if (!home.hidden) lastHomeScroll = scrollY;
+    detailFrom = purchasesView.hidden ? "home" : "purchases";
     pushRecent(id);
     let qty = 1;
 
@@ -533,7 +538,7 @@
 
     detail.innerHTML = `
       <div class="shell detail-wrap">
-        <button class="back" data-back><span class="arr">←</span> ALL HAMSTERS</button>
+        <button class="back" data-back><span class="arr">←</span> ${detailFrom === "purchases" ? "MY HAMSTERS" : "ALL HAMSTERS"}</button>
         <div class="detail-grid">
           <div class="detail-media">
             <div class="frame" id="tilt"><div class="paper"><img src="${p.img}" alt="${esc(p.name)}: hand-drawn hamster looking ${esc(p.mood.toLowerCase())}"></div></div>
@@ -557,7 +562,7 @@
                 </button>
               </div>
             </div>
-            <p class="ship-note muted">FREE SHIPPING ON EVERY HAMSTER · FREE MYSTERY STICKER OVER $${STICKER_GOAL}</p>
+            <p class="ship-note muted">FREE SHIPPING ON EVERY HAMSTER · FREE MYSTERY HAMSTER OVER $${MYSTERY_GOAL}</p>
             <div class="acc">
               <button class="acc-btn" aria-expanded="false" aria-controls="accBody" id="accBtn">Hamster Guide <span class="plus" aria-hidden="true"></span></button>
               <div class="acc-body" id="accBody" role="region" aria-labelledby="accBtn">
@@ -583,6 +588,7 @@
     related.forEach((o, i) => rg.appendChild(makeCard(o, i, true)));
 
     home.hidden = true;
+    purchasesView.hidden = true;
     detail.hidden = false;
     scrollTo({ top: 0, behavior: "instant" });
     enter(detail);
@@ -610,7 +616,7 @@
     const acc = $("#accBtn", detail);
     acc.addEventListener("click", () => acc.setAttribute("aria-expanded", String(acc.getAttribute("aria-expanded") !== "true")));
 
-    $("[data-back]", detail).addEventListener("click", () => showHome("back"));
+    $("[data-back]", detail).addEventListener("click", () => (detailFrom === "purchases" ? showPurchases() : showHome("back")));
     setupTilt($("#tilt", detail));
   }
 
@@ -755,19 +761,19 @@
     }
 
     const t = totals();
-    const progress = Math.min(1, t.subtotal / STICKER_GOAL);
-    const left = STICKER_GOAL - t.subtotal;
+    const progress = Math.min(1, t.subtotal / MYSTERY_GOAL);
+    const left = MYSTERY_GOAL - t.subtotal;
     const reward = `
       <div class="reward ${left <= 0 ? "done" : ""}">
-        <p>${left > 0 ? `Spend <b>$${left.toFixed(2)}</b> more for a free mystery sticker` : `<b>Mystery sticker unlocked!</b> It ships free with your hamsters.`}</p>
+        <p>${left > 0 ? `Spend <b>$${left.toFixed(2)}</b> more for a free mystery hamster` : `<b>Mystery hamster unlocked!</b> A surprise hamster joins your order.`}</p>
         <div class="reward-bar"><span style="transform:scaleX(${lastProgress})"></span></div>
       </div>`;
     const sticker = left <= 0 ? `
         <div class="cart-line sticker-line">
           <div class="sticker-art" aria-hidden="true"><span>?</span></div>
           <div>
-            <div class="line-top"><p class="line-name">Mystery sticker</p><p class="line-price">FREE</p></div>
-            <p class="line-mood">A surprise hamster from the vault</p>
+            <div class="line-top"><p class="line-name">Mystery hamster</p><p class="line-price">FREE</p></div>
+            <p class="line-mood">Revealed in My hamsters after checkout</p>
           </div>
         </div>` : "";
 
@@ -864,9 +870,15 @@
   /* ------------------------------------------------------------------ */
   /* Checkout step 2: Apple Pay, where you literally pay in apples        */
   /* ------------------------------------------------------------------ */
-  const APPLE = FRUIT.find((f) => f.value > 0);
-  const DECOYS = FRUIT.filter((f) => f.value === 0);
+  const APPLE = FRUIT.find((f) => f.id === "apple");        // the everyday $5 apple
+  const GREEN = FRUIT.find((f) => f.id === "green_apple");  // the rare $25 apple
   const APPLE_VALUE = APPLE.value;
+  const FRUIT_WEIGHT = FRUIT.reduce((n, f) => n + f.weight, 0);
+  function pickFruit() {
+    let r = Math.random() * FRUIT_WEIGHT;
+    for (const f of FRUIT) { r -= f.weight; if (r < 0) return f; }
+    return APPLE;
+  }
 
   const pay = $("#pay");
   const arena = $("#arena");
@@ -895,7 +907,7 @@
         <button class="apple-pay" id="applePay">
           <span>Pay with</span><img src="${APPLE.img}" alt=""><b>Apple Pay</b>
         </button>
-        <p class="pay-note">Our cashier only accepts apples. Each apple you catch is worth $${APPLE_VALUE}, so you'll need about <b>${apples}</b>.</p>
+        <p class="pay-note">Our cashier only accepts apples. Red apples are worth $${APPLE_VALUE}${GREEN ? ` and the rare green ones $${GREEN.value}` : ""}, so you'll need up to <b>${apples}</b>.</p>
         <button class="pay-alt" disabled>
           <span>Card</span><span class="mono">OUT OF ORDER</span>
         </button>
@@ -915,7 +927,7 @@
     const total = totals().total;
     if (!total) return;
     game = {
-      total, got: 0, caught: 0, items: [], running: true,
+      total, got: 0, caught: 0, green: 0, items: [], running: true,
       last: performance.now(), spawnIn: 0.2, raf: 0,
     };
     $("#payTotal").textContent = money(total);
@@ -932,16 +944,16 @@
 
   function spawn() {
     const W = arena.clientWidth, H = arena.clientHeight;
-    const isApple = Math.random() < 0.5;
-    const f = isApple ? APPLE : DECOYS[Math.floor(Math.random() * DECOYS.length)];
+    const f = pickFruit();
+    const isApple = f.value > 0;
     const size = (W < 600 ? 58 : 72) + Math.random() * 18;
     const el = document.createElement("button");
     el.type = "button";
-    el.className = "fruit";
+    el.className = `fruit ${f.id === "green_apple" ? "rare" : ""}`;
     el.style.width = el.style.height = `${size}px`;
-    el.setAttribute("aria-label", isApple ? `Apple, worth $${APPLE_VALUE}` : "Not an apple");
+    el.setAttribute("aria-label", isApple ? `${f === GREEN ? "Green apple" : "Apple"}, worth $${f.value}` : "Not an apple");
     el.innerHTML = `<img src="${f.img}" alt="" draggable="false">`;
-    const speed = H * (0.24 + Math.random() * 0.2) * (reduceMotion ? 0.6 : 1);
+    const speed = H * (0.24 + Math.random() * 0.2) * f.speed * (reduceMotion ? 0.6 : 1);
     const item = {
       el, f, size,
       x: size / 2 + Math.random() * Math.max(1, W - size * 2),
@@ -992,7 +1004,7 @@
   function floatText(text, x, y, good) {
     const r = pay.getBoundingClientRect();
     const t = document.createElement("span");
-    t.className = `float-text ${good ? "good" : "bad"}`;
+    t.className = `float-text ${good === "great" ? "good great" : good ? "good" : "bad"}`;
     t.textContent = text;
     t.style.left = `${x - r.left}px`;
     t.style.top = `${y - r.top}px`;
@@ -1010,8 +1022,9 @@
       item.dead = true;
       game.got += item.f.value;
       game.caught += 1;
+      if (item.f === GREEN) game.green += 1;
       setCollected();
-      floatText(`+$${item.f.value}`, x, y, true);
+      floatText(`+$${item.f.value}`, x, y, item.f === GREEN ? "great" : true);
       const img = item.el.firstElementChild;
       img.animate([{ transform: "scale(1)", opacity: 1 }, { transform: "scale(1.45)", opacity: 0 }],
         { duration: 200, easing: EASE_OUT, fill: "forwards" }).onfinish = () => item.el.remove();
@@ -1054,6 +1067,7 @@
     const { total, got, caught } = game;
     const change = Math.round((got - total) * 100) / 100;
     const usedCode = discount ? discount.code : null;
+    const order = recordOrder(totals(), game, usedCode);
     cart = [];
     save();
     removeCode();
@@ -1061,23 +1075,25 @@
     renderCart();
 
     $("#payDoneText").innerHTML =
-      `You paid ${money(total)} with <b>${caught}</b> apple${caught === 1 ? "" : "s"}.` +
+      `You paid ${money(total)} with <b>${caught}</b> apple${caught === 1 ? "" : "s"}${game.green ? ` (${game.green} green)` : ""}.` +
       (usedCode ? ` Code ${usedCode} saved you some apples.` : "") +
       (change > 0 ? ` Keep the change ($${Number.isInteger(change) ? change : change.toFixed(2)}).` : "") +
-      " Your hamsters are on their way.";
+      " Your hamsters are on their way." +
+      (order.mystery ? " <b>You also unlocked a mystery hamster!</b> Reveal it in My hamsters." : "");
     pay.classList.add("done");
     payDone.hidden = false;
-    $("#payDoneBtn").focus({ preventScroll: true });
+    $("#payViewBtn").focus({ preventScroll: true });
     appleRain();
   }
 
-  $("#payDoneBtn").addEventListener("click", () => {
+  function closePayDone() {
     game = null;
     pay.classList.remove("open", "done");
     setTimeout(() => { pay.hidden = true; arena.innerHTML = ""; payDone.hidden = true; }, 220);
     closeCart();
-    showHome("shop");
-  });
+  }
+  $("#payDoneBtn").addEventListener("click", () => { closePayDone(); showHome("shop"); });
+  $("#payViewBtn").addEventListener("click", () => { closePayDone(); showPurchases(); });
 
   // The payment went through: a short celebratory shower of apples.
   function appleRain() {
@@ -1103,6 +1119,158 @@
       }).onfinish = () => img.remove();
     }
   }
+
+  /* ------------------------------------------------------------------ */
+  /* Purchases: every paid order, plus the mystery hamster reveal         */
+  /* ------------------------------------------------------------------ */
+  const purchasesView = $("#purchases");
+  let orders = load("hammie-orders", []).filter((o) => o && Array.isArray(o.items));
+  const dateFmt = new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" });
+
+  function updateOrdersCount() {
+    const el = $("#ordersCount");
+    el.hidden = orders.length === 0;
+    el.textContent = orders.length;
+  }
+
+  // Called when a payment succeeds, before the cart is emptied.
+  function recordOrder(t, game, code) {
+    const items = cart.map((l) => ({ id: l.id, qty: l.qty, price: byId[l.id].price }));
+    let mystery = null;
+    if (t.subtotal >= MYSTERY_GOAL) {
+      const inOrder = new Set(items.map((i) => i.id));
+      const pool = PRODUCTS.filter((p) => !inOrder.has(p.id));
+      mystery = (pool.length ? pool : PRODUCTS)[Math.floor(Math.random() * (pool.length || PRODUCTS.length))].id;
+    }
+    const order = {
+      no: 1001 + orders.length,
+      at: Date.now(),
+      items, mystery, revealed: false,
+      subtotal: t.subtotal, off: t.off, total: t.total, code,
+      apples: game.caught, green: game.green,
+    };
+    orders = [order, ...orders];
+    store("hammie-orders", orders);
+    updateOrdersCount();
+    return order;
+  }
+
+  function ownedCard(p, qty, price) {
+    return `
+      <article class="owned">
+        <button class="frame card-media" data-open="${p.id}" aria-label="View ${esc(p.name)}">
+          <span class="paper"><img src="${p.img}" alt="${esc(p.name)}" loading="lazy"></span>
+          ${qty > 1 ? `<span class="qty-tag">× ${qty}</span>` : ""}
+        </button>
+        <h3 class="card-name">${esc(p.name)}</h3>
+        <p class="price">${money(price)}${qty > 1 ? " each" : ""}</p>
+      </article>`;
+  }
+
+  function mysteryCard(o) {
+    const p = byId[o.mystery];
+    if (!p) return "";
+    return `
+      <article class="owned mystery ${o.revealed ? "revealed" : ""}" data-order="${o.no}">
+        <div class="flip">
+          <button class="flip-face flip-front frame" data-reveal="${o.no}" aria-label="Reveal your mystery hamster" ${o.revealed ? 'tabindex="-1"' : ""}>
+            <span class="paper mystery-paper"><span class="q" aria-hidden="true">?</span><span class="mono">TAP TO REVEAL</span></span>
+          </button>
+          <button class="flip-face flip-back frame card-media" data-open="${p.id}" aria-label="View ${esc(p.name)}" ${o.revealed ? "" : 'tabindex="-1"'}>
+            <span class="paper"><img src="${p.img}" alt="${esc(p.name)}"></span>
+            <span class="tags"><span class="new-tag">FREE GIFT</span></span>
+          </button>
+        </div>
+        <h3 class="card-name">${o.revealed ? esc(p.name) : "Mystery hamster"}</h3>
+        <p class="price">${o.revealed ? `FREE · ${esc(p.mood)}` : `FREE · for spending over $${MYSTERY_GOAL}`}</p>
+      </article>`;
+  }
+
+  function orderHTML(o) {
+    const count = o.items.reduce((n, i) => n + i.qty, 0) + (o.mystery ? 1 : 0);
+    const apples = o.green ? `${o.apples} apples (${o.green} green)` : `${o.apples} apples`;
+    return `
+      <section class="order" aria-label="Order ${o.no}">
+        <header class="order-head">
+          <div>
+            <p class="order-no mono">ORDER #HM-${o.no}</p>
+            <p class="muted">${esc(dateFmt.format(o.at))}</p>
+          </div>
+          <p class="order-meta mono">${count} HAMSTER${count === 1 ? "" : "S"} · PAID ${money(o.total)} · ${apples.toUpperCase()}${o.code ? ` · CODE ${esc(o.code)}` : ""}</p>
+        </header>
+        <div class="grid order-grid">
+          ${o.items.filter((i) => byId[i.id]).map((i) => ownedCard(byId[i.id], i.qty, i.price)).join("")}
+          ${o.mystery ? mysteryCard(o) : ""}
+        </div>
+      </section>`;
+  }
+
+  function renderPurchases() {
+    const adopted = orders.reduce((n, o) => n + o.items.reduce((m, i) => m + i.qty, 0) + (o.mystery ? 1 : 0), 0);
+    const apples = orders.reduce((n, o) => n + (o.apples || 0), 0);
+    const paid = orders.reduce((n, o) => n + (o.total || 0), 0);
+    purchasesView.innerHTML = `
+      <div class="shell purchases-wrap">
+        <button class="back" data-go="shop"><span class="arr">←</span> BACK TO THE SHOP</button>
+        <p class="eyebrow mono">PURCHASES</p>
+        <h1 class="purchases-title">My hamsters</h1>
+        ${orders.length ? `
+          <div class="stats">
+            <div><p class="stat-num">${adopted}</p><p class="mono muted">HAMSTERS ADOPTED</p></div>
+            <div><p class="stat-num">${apples}</p><p class="mono muted">APPLES CAUGHT</p></div>
+            <div><p class="stat-num">${money(paid).replace(" USD", "")}</p><p class="mono muted">PAID IN APPLES</p></div>
+          </div>
+          ${orders.map(orderHTML).join("")}
+          <div class="purchases-foot"><button class="btn-iri" data-go="shop"><span>BACK TO THE SHOP</span></button></div>`
+        : `
+          <div class="no-results">
+            <div class="frame"><div class="paper" style="aspect-ratio:1"><img src="${byId.sad.img}" alt=""></div></div>
+            <h3>No hamsters adopted yet</h3>
+            <p class="muted">Everything you buy shows up here, along with any mystery hamsters you unlock.</p>
+            <button class="btn-iri" data-go="shop"><span>BROWSE HAMSTERS</span></button>
+          </div>`}
+      </div>`;
+  }
+
+  function showPurchases() {
+    closeCart();
+    if (!home.hidden) lastHomeScroll = scrollY;
+    home.hidden = true;
+    detail.hidden = true;
+    purchasesView.hidden = false;
+    renderPurchases();
+    scrollTo({ top: 0, behavior: "instant" });
+    enter(purchasesView);
+  }
+
+  // Tap to reveal: the card flips over and the name fades in.
+  purchasesView.addEventListener("click", (e) => {
+    const btn = e.target.closest("[data-reveal]");
+    if (!btn) return;
+    const o = orders.find((x) => x.no === Number(btn.dataset.reveal));
+    if (!o || o.revealed) return;
+    o.revealed = true;
+    store("hammie-orders", orders);
+    const card = btn.closest(".mystery");
+    const p = byId[o.mystery];
+    card.classList.add("revealed");
+    btn.setAttribute("tabindex", "-1");
+    const back = $(".flip-back", card);
+    back.removeAttribute("tabindex");
+    setTimeout(() => {
+      const name = $(".card-name", card), price = $(".price", card);
+      name.textContent = p.name;
+      price.textContent = `FREE · ${p.mood}`;
+      if (!reduceMotion) {
+        [name, price].forEach((el) => el.animate([{ opacity: 0, filter: "blur(4px)" }, { opacity: 1, filter: "blur(0)" }], { duration: 320, easing: EASE_OUT }));
+        card.classList.add("sparkle");
+      }
+      back.focus({ preventScroll: true });
+      showToast(p.id, 0, `Your mystery hamster is the ${p.name}!`);
+    }, reduceMotion ? 0 : 420);
+  });
+
+  updateOrdersCount();
 
   /* ------------------------------------------------------------------ */
   /* Spin the wheel: one spin per visitor, every slice wins a code        */

@@ -25,7 +25,7 @@
     <div class="announce-msgs" id="announceMsgs" aria-live="off">
       <p class="on">WAVE 3 IS HERE - 20 new hamsters just dropped.</p>
       <p><button class="announce-link" data-go="wheel">SPIN THE WHEEL</button> - win up to 30% off your adoption.</p>
-      <p>FREE SHIPPING, always. Spend $150 and get a free mystery sticker.</p>
+      <p>FREE SHIPPING, always. Spend $150 and get a free mystery hamster.</p>
     </div>
     <button class="icon-btn" id="announceClose" aria-label="Dismiss announcement">
       <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M2 2l10 10M12 2L2 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
@@ -42,6 +42,7 @@
     <nav class="links" aria-label="Main">
       <a href="#" data-go="home">Home</a>
       <a href="#" data-go="shop">Shop</a>
+      <a href="#" data-go="purchases" class="nav-purchases">Purchases<span class="nav-count" id="ordersCount" hidden></span></a>
       <div class="menu">
         <button class="menu-trigger" id="pagesBtn" aria-haspopup="true" aria-expanded="false" aria-controls="pagesMenu">
           Pages <svg width="10" height="6" viewBox="0 0 10 6" aria-hidden="true"><path d="M0 0h10L5 6z" fill="currentColor"/></svg>
@@ -50,6 +51,7 @@
           <button role="menuitem" data-go="new">New arrivals</button>
           <button role="menuitem" data-go="sale">On sale</button>
           <button role="menuitem" data-go="wheel">Spin the wheel</button>
+          <button role="menuitem" data-go="purchases">My hamsters</button>
           <button role="menuitem" data-go="random">Surprise me</button>
           <button role="menuitem" data-go="about">About</button>
         </div>
@@ -135,6 +137,7 @@
   </main>
 
   <main id="detail" class="view" hidden></main>
+  <main id="purchases" class="view" hidden></main>
 </div>
 
 <footer class="footer">
@@ -169,7 +172,7 @@
       <div class="right"><p class="mono muted">COLLECTED</p><p class="pay-num" id="payGot" aria-live="polite"></p></div>
     </div>
     <div class="pay-bar" aria-hidden="true"><span id="payFill"></span></div>
-    <p class="pay-hint">Tap the apples, each one is worth $5.</p>
+    <p class="pay-hint">Tap the apples: red ones are worth $5, rare green ones $25.</p>
   </div>
   <div class="pay-arena" id="arena"></div>
   <div class="pay-done" id="payDone" hidden>
@@ -180,7 +183,10 @@
       </svg>
       <h2>Payment successful!</h2>
       <p id="payDoneText"></p>
-      <button class="btn-iri" id="payDoneBtn"><span>BACK TO THE SHOP</span></button>
+      <div class="done-actions">
+        <button class="btn-ghost" id="payDoneBtn">BACK TO THE SHOP</button>
+        <button class="btn-iri" id="payViewBtn"><span>VIEW MY HAMSTERS</span></button>
+      </div>
     </div>
   </div>
 </div>

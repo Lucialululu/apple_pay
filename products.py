@@ -275,11 +275,13 @@ PRODUCTS = [
     },
 ]
 
-# The four food icons in food_icons/. They only appear in the Apple Pay
-# checkout game: apples are worth $5 each, the rest are decoys.
+# The food icons in food_icons/. They only appear in the Apple Pay checkout
+# game. `value` is what catching one is worth ($0 = a decoy), `weight` is how
+# often it falls compared to the others, and `speed` makes it fall faster.
 FRUIT = [
-    {"id": "apple", "file": "Red_Apple_Emoji_large.png", "value": 5},
-    {"id": "pizza", "file": "Slice_Of_Pizza_Emoji_large.png", "value": 0},
-    {"id": "lemon", "file": "Lemon_Emoji_large.png", "value": 0},
-    {"id": "eggplant", "file": "Eggplant_Emoji_large.png", "value": 0},
+    {"id": "apple", "file": "Red_Apple_Emoji_large.png", "value": 5, "weight": 44, "speed": 1.0},
+    {"id": "green_apple", "file": "Green_Apple_Emoji_large.png", "value": 25, "weight": 8, "speed": 1.35},
+    {"id": "pizza", "file": "Slice_Of_Pizza_Emoji_large.png", "value": 0, "weight": 16, "speed": 1.0},
+    {"id": "lemon", "file": "Lemon_Emoji_large.png", "value": 0, "weight": 16, "speed": 1.0},
+    {"id": "eggplant", "file": "Eggplant_Emoji_large.png", "value": 0, "weight": 16, "speed": 1.0},
 ]

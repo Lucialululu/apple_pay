@@ -958,6 +958,95 @@ h1, h2, h3, p { margin: 0; }
   .spin-pill { left: 12px; bottom: 12px; }
 }
 
+/* ---------- Green apple + success actions ---------- */
+.fruit.rare img { filter: drop-shadow(0 0 14px rgba(140, 220, 90, 0.75)) drop-shadow(0 10px 14px rgba(0, 0, 0, 0.5)); }
+.float-text.great { font-size: 34px; color: #b8f28a; text-shadow: 0 2px 18px rgba(120, 230, 90, 0.7); }
+.done-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; width: 100%; margin-top: 4px; }
+.done-actions .btn-iri { display: grid; width: 100%; }
+.done-actions .btn-iri > span, .done-actions .btn-ghost { padding: 0 16px; white-space: nowrap; }
+.pay-done-card:has(.done-actions) { max-width: 520px; }
+.btn-ghost {
+  display: grid; place-items: center;
+  min-height: 52px; padding: 0 24px;
+  border: 1px solid var(--line-strong); border-radius: 0;
+  font-family: var(--mono); font-size: 15px; letter-spacing: 0.04em;
+  transition: transform 160ms var(--ease-out), background-color 200ms ease, border-color 200ms ease;
+}
+.btn-ghost:active { transform: scale(0.97); }
+@media (hover: hover) and (pointer: fine) { .btn-ghost:hover { background: rgba(244, 242, 238, 0.07); border-color: rgba(244, 242, 238, 0.45); } }
+
+/* ---------- Nav: purchases count ---------- */
+.nav-count {
+  min-width: 20px; height: 20px; padding: 0 6px; border-radius: 99px;
+  display: inline-grid; place-items: center;
+  background: var(--iri); color: var(--bg);
+  font-size: 11px; font-weight: 500;
+}
+.nav-count[hidden] { display: none; }
+
+/* ---------- Purchases page ---------- */
+.purchases-wrap { padding: 40px var(--gutter) clamp(72px, 9vw, 120px); border-bottom: 1px solid var(--line); min-height: 70vh; }
+.purchases-wrap > .eyebrow { margin-top: 28px; }
+.purchases-title { font-size: clamp(48px, 6vw, 88px); font-weight: 500; letter-spacing: -0.035em; line-height: 1; margin-top: 10px; }
+.stats {
+  display: grid; grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin: clamp(32px, 4vw, 48px) 0 clamp(40px, 5vw, 64px);
+  border: 1px solid var(--line-strong);
+}
+.stats > div { padding: 22px 24px; display: grid; gap: 6px; }
+.stats > div + div { border-left: 1px solid var(--line-strong); }
+.stat-num { font-family: var(--mono); font-size: clamp(26px, 3vw, 40px); letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+.stats .mono { font-size: 12px; letter-spacing: 0.1em; }
+.order { padding: 32px 0 40px; border-top: 1px solid var(--line); }
+.order-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 12px 24px; flex-wrap: wrap; margin-bottom: 28px; }
+.order-no { font-size: 15px; letter-spacing: 0.06em; }
+.order-head .muted { font-size: 14px; margin-top: 2px; }
+.order-meta { font-size: 12px; letter-spacing: 0.08em; color: var(--muted); text-align: right; }
+.owned { text-align: center; position: relative; }
+.qty-tag {
+  position: absolute; right: 12px; bottom: 12px; z-index: 2;
+  font-family: var(--mono); font-size: 13px; padding: 5px 9px; border-radius: 7px;
+  background: var(--bg); color: var(--text);
+}
+.purchases-foot { display: flex; justify-content: center; padding-top: 24px; border-top: 1px solid var(--line); }
+
+/* Mystery card: flips over to show the free hamster */
+.mystery .flip {
+  position: relative; aspect-ratio: 1;
+  transform-style: preserve-3d;
+  transition: transform 760ms var(--ease-in-out);
+}
+.mystery.revealed .flip { transform: rotateY(180deg); }
+.flip-face { position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+.flip-face > .paper { height: 100%; }
+.flip-back { transform: rotateY(180deg); }
+.mystery-paper {
+  background: radial-gradient(80% 80% at 30% 20%, rgba(255, 255, 255, 0.35), transparent 60%), var(--iri) !important;
+  display: grid; place-content: center; gap: 8px; text-align: center;
+}
+.mystery-paper .q { font-family: var(--mono); font-size: clamp(56px, 7vw, 96px); font-weight: 500; line-height: 1; color: var(--bg); }
+.mystery-paper .mono { font-size: 12px; letter-spacing: 0.14em; color: var(--bg); }
+.mystery:not(.revealed) .flip-front { animation: wobble 2.8s ease-in-out infinite; }
+@keyframes wobble { 0%, 86%, 100% { transform: rotate(0); } 90% { transform: rotate(-3deg); } 94% { transform: rotate(3deg); } 97% { transform: rotate(-1.5deg); } }
+.mystery.sparkle::after {
+  content: ""; position: absolute; left: 50%; top: 40%; width: 60%; aspect-ratio: 1;
+  border-radius: 50%; border: 3px solid #ffd37a; pointer-events: none;
+  transform: translate(-50%, -50%); animation: ring 700ms var(--ease-out) forwards;
+}
+@keyframes ring { from { opacity: 0.9; transform: translate(-50%, -50%) scale(0.6); } to { opacity: 0; transform: translate(-50%, -50%) scale(1.8); } }
+
+@media (max-width: 1100px) { .nav-purchases { padding-inline: 12px; } }
+@media (max-width: 760px) {
+  .nav-purchases { display: none !important; }
+  .stats { grid-template-columns: 1fr; }
+  .stats > div + div { border-left: 0; border-top: 1px solid var(--line-strong); }
+  .stats > div { padding: 16px 18px; display: flex; justify-content: space-between; align-items: baseline; }
+  .order-meta { text-align: left; }
+  .qty-tag { right: 8px; bottom: 8px; }
+  .done-actions { grid-template-columns: 1fr; }
+  .done-actions .btn-iri { order: -1; }
+}
+
 /* Reduced motion: keep fades that explain state, drop movement. */
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
@@ -966,6 +1055,12 @@ h1, h2, h3, p { margin: 0; }
   .reveal-up { animation: none; opacity: 1; transform: none; }
   .hero-art .layer { animation: none !important; opacity: 1; }
   .pay-hud { transform: none; }
+  .mystery .flip { transition: none; }
+  .mystery:not(.revealed) .flip-front { animation: none; }
+  .mystery.revealed .flip { transform: none; }
+  .mystery.revealed .flip-front { opacity: 0; pointer-events: none; }
+  .mystery .flip-back { transform: none; opacity: 0; transition: opacity 300ms ease; }
+  .mystery.revealed .flip-back { opacity: 1; }
   .mini-wheel, .spinning .bulb { animation: none !important; }
   .announce-msgs p { transform: none; filter: none; }
   .modal-card { transform: none !important; }

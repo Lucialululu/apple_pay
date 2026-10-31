@@ -120,7 +120,13 @@ def build_page(version: float) -> str:
             }
         )
     fruit = [
-        {"id": f["id"], "value": f["value"], "img": to_data_uri(FOOD / f["file"], 160, "PNG")}
+        {
+            "id": f["id"],
+            "value": f["value"],
+            "weight": f.get("weight", 10),
+            "speed": f.get("speed", 1.0),
+            "img": to_data_uri(FOOD / f["file"], 160, "PNG"),
+        }
         for f in FRUIT
     ]
     buf = io.BytesIO()

@@ -9,20 +9,24 @@ A small just-for-fun webshop for hamsters depicting different moods, built with 
 You can browse 56 hamster moods, search by name
 or mood, filter by new, on sale or saved, and heart the ones you like. Open any
 hamster for its own page and add it to the cart. Spend $150 and a free mystery
-sticker joins your order.
+hamster joins your order.
 
 <p align="center">
   <img src="store_examples/item_examples.png" width="500" alt="Hammie Shop item example" />
 </p>
 
 
-New visitors get a **spin-the-wheel** popup: every slice wins a discount code
+Every visit gets a **spin-the-wheel** popup after 10 seconds: every slice wins a discount code
 (5–30% off) that is applied to the cart automatically. Codes can also be typed
 in the cart.
 
-Checkout takes Apple Pay. Tap the apples (each is worth $5, the pizza, lemons and
-eggplants are decoys) until you have collected the total, and the payment goes
-through. No real money is involved unless you want to donate :).
+Checkout takes Apple Pay. Tap the apples (red ones are worth $5, the rare green
+ones $25, and the pizza, lemons and eggplants are decoys) until you have
+collected the total, and the payment goes through.
+
+After paying, **My hamsters** (the Purchases tab) lists every order. If you
+spent $150 or more, a mystery hamster card waits there: tap it to reveal which
+hamster you got for free. No real money is involved unless you want to donate :).
 
 ## Run it locally
 
@@ -45,7 +49,8 @@ uv run streamlit run app.py
 | `hamster_images/` | The hamster drawings (the products). Each new drop gets its own folder (`wave_2/`, `wave_3/`…); the newest folder's hamsters are tagged NEW. |
 | `food_icons/` | The fruit that falls during the Apple Pay checkout. |
 
-The cart is saved in the visitor's own browser, so it survives a refresh.
+The cart, saved hamsters and purchases are kept in the visitor's own browser, so
+they survive a refresh.
 
 
 <p align="center">
