@@ -12,83 +12,83 @@ The order below is the "Featured" order. Edit anything freely.
 PRODUCTS = [
     # ---- Wave 3 (newest: shown first, tagged NEW) ----
     {"id": "finally_free", "file": "wave_3/hamster_FINALLY_FREE.JPG", "name": "Finally-Free Hamster", "mood": "Liberated", "price": 86, "compare_at": None,
-     "blurb": "Chains broken, mouth wide open, screaming into the sunset. It is 17:00 on a Friday and nobody can stop this hamster now."},
-    {"id": "i_cry", "file": "wave_3/hamster_I_cry.JPG", "name": "I-Cry Hamster", "mood": "Ugly crying", "price": 78, "compare_at": None,
-     "blurb": "Tears, snot, the full performance. Cried at the dog-food advert again. No regrets, just tissues."},
+     "blurb": "Yay, it surved the exams!"},
+    {"id": "i_cry", "file": "wave_3/hamster_i_cry.JPG", "name": "I-Cry Hamster", "mood": "Ugly crying", "price": 78, "compare_at": None,
+     "blurb": "I think a tissue box will do it a huge favour."},
     {"id": "worried", "file": "wave_3/hamster_a_bit_worried.JPG", "name": "A-Bit-Worried Hamster", "mood": "Peeking", "price": 59, "compare_at": None,
-     "blurb": "Peeks in from the side of the frame to check if the meeting is still happening. Hoping very much that it isn't."},
+     "blurb": "'Yo, let's do some leet codes together', sombody asked."},
     {"id": "defeated", "file": "wave_3/hamster_defeated.JPG", "name": "Defeated Hamster", "mood": "Defeated", "price": 69, "compare_at": 81,
-     "blurb": "Eyes closed, tiny frown, accepting fate with dignity. Lost the board game. Again. To a child."},
+     "blurb": "Somebody rolled a 7 in Catan... It knows right exactly where the thieve goes."},
     {"id": "lock_in", "file": "wave_3/hamster_fastest_lock_in_of_all_times.JPG", "name": "Locked-In Hamster", "mood": "Locked in", "price": 94, "compare_at": 114,
-     "blurb": "The fastest lock-in of all time. Speed lines, dramatic shadows, deadline in four minutes. Do not disturb, it is in the zone."},
+     "blurb": "This hamster is sitting next to Matt Hagen on the plane, and his face iw low-key melting off, but it did the fastest lock-in of all times."},
     {"id": "demons", "file": "wave_3/hamster_fighting_back_demons.JPG", "name": "Fighting-Demons Hamster", "mood": "Resisting", "price": 69, "compare_at": 81,
-     "blurb": "Biting its lip, refusing to open the fridge a fourth time. A heroic struggle, mostly against snacks."},
+     "blurb": "This hamster is on the verge of being rage-baited. It is resisting. It is strong."},
     {"id": "holding_tears", "file": "wave_3/hamster_fighting_back_tears.JPG", "name": "Holding-Back-Tears Hamster", "mood": "Wobbly", "price": 75, "compare_at": 87,
-     "blurb": "The lip is wobbling. The eyes are brave. Someone said 'are you okay?' and now it's touch and go."},
-    {"id": "freezing", "file": "wave_3/hamster_freexing.JPG", "name": "Freezing Hamster", "mood": "Frozen solid", "price": 71, "compare_at": 83,
+     "blurb": "It has lost its 4th 50/50 in a row. It is okay, it is unfazed... or so it says. It is not okay."},
+    {"id": "freezing", "file": "wave_3/hamster_freezing.JPG", "name": "Freezing Hamster", "mood": "Frozen solid", "price": 71, "compare_at": 83,
      "blurb": "Blue, snowed on, icicles in the eyebrows. Somebody turned the heating off in October. In Denmark."},
     {"id": "gg_cooked", "file": "wave_3/hamster_gg_i_am_cooked.JPG", "name": "GG-I'm-Cooked Hamster", "mood": "Cooked", "price": 68, "compare_at": None,
-     "blurb": "Opened the exam paper. Read question one. Calmly accepted that it is over. A quiet 'gg'."},
+     "blurb": "Opened the exam paper. Read question one. Calmly accepted that it is over. A quiet 'gg', and 'let me knooow, let me know' is playing in the background."},
     {"id": "guitar", "file": "wave_3/hamster_guitar.JPG", "name": "Guitar Hamster", "mood": "Rocking out", "price": 61, "compare_at": None,
-     "blurb": "Knows exactly three chords and plays them with total confidence. Will absolutely play Wonderwall at your party."},
+     "blurb": "Knows exactly three chords and plays them with total confidence."},
     {"id": "eyes_on_you", "file": "wave_3/hamster_i_have_got_my_eyes_on_you.JPG", "name": "Eyes-On-You Hamster", "mood": "Watching", "price": 90, "compare_at": None,
-     "blurb": "Squinting, chewing, keeping track of exactly who took the last cookie. It has its eyes on you. Yes, you."},
+     "blurb": "It believes you are Hitler, whilst you are arguing for why YOU need to have the chancellor positions. It knows."},
     {"id": "idek", "file": "wave_3/hamster_idek.JPG", "name": "IDEK Hamster", "mood": "Baffled", "price": 100, "compare_at": None,
      "blurb": "I don't even know. Neither does this hamster. Our priciest hamster, for reasons nobody can explain."},
     {"id": "im_done", "file": "wave_3/hamster_im_done.JPG", "name": "I'm-Done Hamster", "mood": "Done", "price": 99, "compare_at": 119,
-     "blurb": "Clocked out emotionally around 14:30. Teeth clenched, soul elsewhere. Please leave a message after the sigh."},
+     "blurb": "The s-train is, once again, delayed. It can't believe it, but it totally saw it coming."},
     {"id": "not_sad", "file": "wave_3/hamster_no_im_not_sad.JPG", "name": "Not-Sad Hamster", "mood": "Totally fine", "price": 90, "compare_at": None,
      "blurb": "No, it is not sad. That single tear is allergies. Everything is fine. Stop asking."},
     {"id": "still_not_impressed", "file": "wave_3/hamster_not_impressed.JPG", "name": "Still-Not-Impressed Hamster", "mood": "Unmoved", "price": 65, "compare_at": None,
-     "blurb": "The sequel nobody asked for. Has seen your new trick, and it is still not impressed. Sorry."},
+     "blurb": "Ehh it is NOT impressed with what you just said..."},
     {"id": "oopsss", "file": "wave_3/hamster_oopsss.JPG", "name": "Oopsss Hamster", "mood": "Mortified", "price": 53, "compare_at": None,
-     "blurb": "Replied-all. Face draining of all colour from the top down. Our cheapest hamster, because it is already embarrassed enough."},
+     "blurb": "And I oop-"},
     {"id": "pleading", "file": "wave_3/hamster_pleading.JPG", "name": "Pleading Hamster", "mood": "Pleading", "price": 83, "compare_at": 103,
-     "blurb": "Big wet eyes, tiny trembling mouth. Please. One more episode. Just one."},
+     "blurb": "PLEASE LET'S JUST EAT MALATANG TOGETHER PLEASE."},
     {"id": "pleading_more", "file": "wave_3/hamster_pleading_even_more.JPG", "name": "Pleading-Even-More Hamster", "mood": "Begging", "price": 59, "compare_at": None,
      "blurb": "Pleaded so hard it knocked $24 off its own price. Works every time. Do not make eye contact."},
     {"id": "shocked", "file": "wave_3/hamster_shocked.JPG", "name": "Shocked Hamster", "mood": "Shook", "price": 97, "compare_at": 117,
      "blurb": "Round eyes, flushed cheeks, completely stunned. Just found out what the rent is now."},
     {"id": "happy_tears", "file": "wave_3/hamster_tears_of_happiness.JPG", "name": "Happy-Tears Hamster", "mood": "Overjoyed", "price": 54, "compare_at": None,
-     "blurb": "Crying, but the good kind. Someone brought cake to the office and it was not even a birthday."},
+     "blurb": "The exam period is over, and so it the hamster... At least it survived right? (it failed 2 out of 3 exams)."},
 
     # ---- Wave 2 ----
     {"id": "hold_it_in", "file": "wave_2/hamster_I_gotta_hold_it_in.jpg", "name": "Hold-It-In Hamster", "mood": "Holding it in", "price": 69, "compare_at": 87,
-     "blurb": "Cheeks clenched, smile locked, eyes watering slightly. Someone said something hilarious at a funeral and this hamster will not be the one who breaks."},
-    {"id": "cooked", "file": "wave_2/hamster_cokked.JPG", "name": "Cooked Hamster", "mood": "Overheated", "price": 54, "compare_at": None,
+     "blurb": "No no... I can't laugh yet... I gotta hold it in."},
+    {"id": "cooked", "file": "wave_2/hamster_cooked.JPG", "name": "Cooked Hamster", "mood": "Overheated", "price": 54, "compare_at": None,
      "blurb": "Fell asleep in the sun, woke up medium-rare. Gently steaming. Please do not touch, it is still a bit warm."},
     {"id": "ded", "file": "wave_2/hamster_ded.JPG", "name": "Ded Hamster", "mood": "Dramatically deceased", "price": 63, "compare_at": 75,
-     "blurb": "Saw the group chat at 7am and simply lay down. Comes with its own flowers. Will be back to normal by lunch."},
+     "blurb": "The exam results came in..."},
     {"id": "disgusted", "file": "wave_2/hamster_disgusted.JPG", "name": "Disgusted Hamster", "mood": "Grossed out", "price": 90, "compare_at": 110,
-     "blurb": "Someone put pineapple on the sunflower seeds. The face says everything a strongly worded letter would."},
+     "blurb": "You just suggested TFT instead of ARAM mayhem or roblox horror games... How dare you."},
     {"id": "eyebrow", "file": "wave_2/hamster_eyebrow_raised.JPG", "name": "Eyebrow Hamster", "mood": "Skeptical", "price": 98, "compare_at": None,
-     "blurb": "One eyebrow, fully deployed. Your excuse has been received and is being reviewed with great suspicion."},
+     "blurb": "Raised eyebrow, unimpressed. It is not sure what you just said, but it is not impressed."},
     {"id": "glad", "file": "wave_2/hamster_glad.JPG", "name": "Glad Hamster", "mood": "Content", "price": 87, "compare_at": 99,
-     "blurb": "A soft blush and a small, satisfied smile. The look of someone whose nap went exactly to plan."},
+     "blurb": "A malatang trip is scheduled for tomorrow. It is glad. It is very glad."},
     {"id": "hmmm", "file": "wave_2/hamster_hmmm.JPG", "name": "Hmmm Hamster", "mood": "Pondering", "price": 55, "compare_at": 73,
-     "blurb": "Lips pursed, thinking very hard about whether to have a second snack. The answer is always yes, but the ritual matters."},
+     "blurb": "This hamster may need glasses, it can't make out what is written on the whiteboard (it is sitting in the front row)."},
     {"id": "knocked_out", "file": "wave_2/hamster_knocked_out.JPG", "name": "Knocked-Out Hamster", "mood": "Out cold", "price": 61, "compare_at": None,
-     "blurb": "Ten minutes into the movie, one drool trail later. Ideal for anyone who 'is just resting their eyes'."},
+     "blurb": "10 slides in and 60 left, 2 hours into the lecture and 4 hours left, it might not survive."},
     {"id": "no_you_did_not", "file": "wave_2/hamster_no_you_did_not.JPG", "name": "Oh-No-You-Didn't Hamster", "mood": "Offended", "price": 74, "compare_at": None,
-     "blurb": "You did. You really did. And this hamster will be bringing it up at every family dinner from now on."},
+     "blurb": "You just put the thieve on its resources in Catan, and you took its only wheat. It is not happy. You just made an enemy of your life time."},
     {"id": "not_impressed", "file": "wave_2/hamster_not_impressed.JPG", "name": "Not-Impressed Hamster", "mood": "Deadpan", "price": 73, "compare_at": None,
-     "blurb": "Watched your magic trick. Saw the card up your sleeve. Said nothing, which somehow hurts more."},
+     "blurb": "Your joke was not funny. It is not impressed."},
     {"id": "broke", "file": "wave_2/hamster_poor.JPG", "name": "Broke Hamster", "mood": "Broke", "price": 65, "compare_at": 83,
-     "blurb": "Opened the wallet, found only flies. Payday is in nine days. Probably the most relatable hamster we've ever drawn."},
+     "blurb": "Opened the wallet, found only flies. Payday is in nine days. Probably the most relatable hamster ever."},
     {"id": "sobbing", "file": "wave_2/hamster_sad.JPG", "name": "Sobbing Hamster", "mood": "Sobbing", "price": 60, "compare_at": None,
-     "blurb": "Two waterfalls of tears and an open-mouth wail. The sad hamster's dramatic older sibling. Tissues not included."},
+     "blurb": "'We can't end on a loss', and it is 1 AM, it got work tomorrow, and it JUST lost again... And it deranked."},
     {"id": "smug", "file": "wave_2/hamster_smug.JPG", "name": "Smug Hamster", "mood": "Smug", "price": 81, "compare_at": None,
-     "blurb": "Was right about the thing. Will not say 'I told you so' out loud. Doesn't need to."},
+     "blurb": "It's enemy laner is an iron, this game is free."},
     {"id": "sniff", "file": "wave_2/hamster_sniff.JPG", "name": "Sniffly Hamster", "mood": "Sniffly", "price": 71, "compare_at": None,
      "blurb": "Red nose, wobbly lip, trying very hard to be brave. Needs a hug and possibly a warm drink."},
     {"id": "super_mad", "file": "wave_2/hamster_super_mad.JPG", "name": "Super-Mad Hamster", "mood": "Fuming", "price": 74, "compare_at": None,
-     "blurb": "Brows so heavy they've become a single storm cloud. Do not ask what happened. Do not ask."},
+     "blurb": "It's friend just pulled two 5 star limited characters in one single 10 pull."},
     {"id": "sweaty", "file": "wave_2/hamster_sweating.JPG", "name": "Sweaty Hamster", "mood": "Melting", "price": 75, "compare_at": None,
      "blurb": "It is 31 degrees and this hamster wore a fur coat. Every summer, the same mistake."},
     {"id": "very_annoyed", "file": "wave_2/hamster_very_annoyed.JPG", "name": "Very Annoyed Hamster", "mood": "Screaming", "price": 85, "compare_at": None,
-     "blurb": "The Wi-Fi dropped mid-upload. Again. Eyes burning, mouth wide, fully committed to the scream."},
+     "blurb": "The Wi-Fi was cut out mid team-fight. Eyes burning, mouth wide, fully committed to the scream."},
     {"id": "helmet", "file": "wave_2/hamster_war.jpg", "name": "Helmet Hamster", "mood": "On duty", "price": 61, "compare_at": 71,
-     "blurb": "Helmet on, face blank, ready for the weekly team meeting. Has seen things. Mostly spreadsheets."},
+     "blurb": "Exams are coming, nothing else needs to be said..."},
 
     # ---- Wave 1 ----
     {
@@ -98,9 +98,7 @@ PRODUCTS = [
         "mood": "Delighted",
         "price": 65,
         "compare_at": None,
-        "blurb": "Blushing, beaming, mildly embarrassed about it. The Happy Hamster "
-        "is the friend who texts you back within the minute. Hang it where "
-        "good news usually arrives.",
+        "blurb": "It looks like it is hiding good news, or is waiting for you to notice that it stole your water bottle. Either way, it is very pleased with itself.",
     },
     {
         "id": "queen",
@@ -109,9 +107,7 @@ PRODUCTS = [
         "mood": "Regal",
         "price": 94,
         "compare_at": None,
-        "blurb": "Emerald eyes, zero apologies. The Queen does not chase sunflower "
-        "seeds; the seeds come to her. Recommended for anyone who has ever "
-        "been asked to 'tone it down'.",
+        "blurb": "Queen never dies.",
     },
     {
         "id": "sus",
@@ -120,8 +116,7 @@ PRODUCTS = [
         "mood": "Suspicious",
         "price": 50,
         "compare_at": None,
-        "blurb": "Someone ate the last cracker and the Sus Hamster has a list of "
-        "names. Our most affordable hamster, which is itself a little suspicious.",
+        "blurb": "It looks at you as if you just said something outlandish. It is not impressed, and you shouldn't be either.",
     },
     {
         "id": "tongue",
@@ -130,8 +125,7 @@ PRODUCTS = [
         "mood": "Unhinged",
         "price": 59,
         "compare_at": 74,
-        "blurb": "Full tongue, full commitment. The Bleh Hamster is the face you make "
-        "when the group photo is taken on the count of two.",
+        "blurb": "It just won 50/50 on early pity and you did not. It is shoving it's hapiness in your face. It is not sorry.",
     },
     {
         "id": "phone",
@@ -150,8 +144,7 @@ PRODUCTS = [
         "mood": "Amazed",
         "price": 68,
         "compare_at": None,
-        "blurb": "Has just seen a cucumber slice for the first time and will never be "
-        "the same. For people who still say 'whoa' out loud.",
+        "blurb": "There is a crack-head on the s-train. You two look at each other giving each other 'that face', hoping that the crack-head will not notice you.",
     },
     {
         "id": "noting",
@@ -160,8 +153,7 @@ PRODUCTS = [
         "mood": "Taking notes",
         "price": 88,
         "compare_at": None,
-        "blurb": "Glasses on, keyboard out. The Noting Hamster writes down everything "
-        "you said in that meeting, especially the parts you'd like back.",
+        "blurb": "'WRITE THAT DOWN BRO, WRITE THAT DOWN!', 'Bet, I am already on it'.",
     },
     {
         "id": "nope",
@@ -170,8 +162,7 @@ PRODUCTS = [
         "mood": "Declining",
         "price": 61,
         "compare_at": 79,
-        "blurb": "One finger, one word: no. Perfect gift for anyone learning to set "
-        "boundaries, or anyone who already has.",
+        "blurb": "Don't you dare think about it...",
     },
     {
         "id": "frustrated",
@@ -180,8 +171,7 @@ PRODUCTS = [
         "mood": "Grinding teeth",
         "price": 99,
         "compare_at": None,
-        "blurb": "Every single tooth, clenched. Our most expensive hamster, priced "
-        "accordingly by a hamster who is very, very done.",
+        "blurb": "Teeth clenched, fists balled, eyes narrowed. It just got filled into the same role for the 5th game of the night of a 5-man-flex session. It is not happy about it.",
     },
     {
         "id": "mad",
@@ -190,8 +180,7 @@ PRODUCTS = [
         "mood": "Steaming",
         "price": 60,
         "compare_at": None,
-        "blurb": "Comes with two free clouds of steam. The wheel stopped working and "
-        "somebody is going to hear about it.",
+        "blurb": "It can't believe it, it just vacuumed the whole house, and the place is already musty dusty and crusty again... This madness will never end.",
     },
     {
         "id": "shh",
@@ -200,8 +189,7 @@ PRODUCTS = [
         "mood": "Secretive",
         "price": 72,
         "compare_at": 90,
-        "blurb": "Knows where the snacks are hidden. Will not tell you. Ideal for "
-        "libraries, nurseries, and open-plan offices.",
+        "blurb": "Shhh, it is mewing, and you should too.",
     },
     {
         "id": "relieved",
@@ -210,8 +198,7 @@ PRODUCTS = [
         "mood": "Phew",
         "price": 84,
         "compare_at": 102,
-        "blurb": "The deadline moved. The Relieved Hamster melts into the exhale the "
-        "rest of us are still waiting for.",
+        "blurb": "A sigh of relief. It has been a long week... and it is finally Friday.",
     },
     {
         "id": "what",
@@ -220,8 +207,7 @@ PRODUCTS = [
         "mood": "Confused",
         "price": 87,
         "compare_at": 97,
-        "blurb": "Read the email three times. Still has no idea what was asked. "
-        "Relatable to the bone.",
+        "blurb": "After three 'huuuh what?'s, it still hasn't caught a word. It is seriously contemplating whether your next repeat is the one that gets a fist to it's face.",
     },
     {
         "id": "idk",
@@ -230,8 +216,7 @@ PRODUCTS = [
         "mood": "Uncertain",
         "price": 92,
         "compare_at": 102,
-        "blurb": "Asked where dinner should be. Has no opinions, only a small "
-        "trembling mouth. Pairs well with any group decision.",
+        "blurb": "It just got asked how a Hash Map works under the hood, and what is its time complexity, and it has no idea, like bro I dunno man...",
     },
     {
         "id": "oof",
@@ -240,8 +225,7 @@ PRODUCTS = [
         "mood": "Mortified",
         "price": 96,
         "compare_at": None,
-        "blurb": "Just remembered something embarrassing from 2014. Wide-mouthed, "
-        "wide-eyed, entirely understandable.",
+        "blurb": "It was having a great time out in the city, until it got reminded that it has to change the duvet covers and bed sheets when it gets home. A tragic moment, and a true 'auuuuughh' vibes.",
     },
     {
         "id": "triggered",
@@ -250,8 +234,7 @@ PRODUCTS = [
         "mood": "Rattled",
         "price": 75,
         "compare_at": None,
-        "blurb": "Someone moved the bedding. A small hamster with a very large "
-        "reaction. Handle with care.",
+        "blurb": "It is getting ghosted in the project group chat again, no one else has pushed changed to the git repo, only it, and the deadline is creeping in. Frustration is an understatement.",
     },
     {
         "id": "sad",
@@ -260,8 +243,7 @@ PRODUCTS = [
         "mood": "Glum",
         "price": 93,
         "compare_at": None,
-        "blurb": "A quiet frown for quiet Sundays. Adopting one is scientifically "
-        "proven* to cheer it up. (*not proven)",
+        "blurb": "It's 'Yangguofu' malatang suggestion just got rejected. It's sadness is immeasurable, and its day is ruined (this is the 10th time it has suggested malatang this week).",
     },
     {
         "id": "sick",
@@ -270,8 +252,7 @@ PRODUCTS = [
         "mood": "Under the weather",
         "price": 53,
         "compare_at": None,
-        "blurb": "Oxygen mask on, spirit intact. For the friend who 'just has a "
-        "little cold' and is absolutely dying.",
+        "blurb": "It saw the price for a 4 room apartment in copenhagen... and it is not feeling well.",
     },
 ]
 
