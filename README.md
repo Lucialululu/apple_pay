@@ -1,37 +1,39 @@
 # Hammie Shop
 
-A tiny, just-for-fun storefront for hand-drawn hamsters, built with Streamlit.
+A small just-for-fun webshop for hamsters depicting different moods, built with Streamlit.
 
-Browse 56 moods across three waves (Sus, Queen, Ded, Guitar…), search by name
+<p align="center">
+  <img src="store_examples/front_page.png" width="500" alt="Hammie Shop front page" />
+</p>
+
+You can browse 56 hamster moods, search by name
 or mood, filter by new, on sale or saved, and heart the ones you like. Open any
 hamster for its own page and add it to the cart. Spend $150 and a free mystery
 sticker joins your order.
+
+<p align="center">
+  <img src="store_examples/item_example.png" width="500" alt="Hammie Shop item example" />
+</p>
+
 
 New visitors get a **spin-the-wheel** popup: every slice wins a discount code
 (5–30% off) that is applied to the cart automatically. Codes can also be typed
 in the cart.
 
-Checkout takes Apple Pay, literally: pick **Pay with Apple Pay** and fruit
-starts falling. Tap the apples (each is worth $5, the pizza, lemons and
-eggplants are decoys) until you've collected the total, and the payment goes
-through. No real money is involved.
+Checkout takes Apple Pay. Tap the apples (each is worth $5, the pizza, lemons and
+eggplants are decoys) until you have collected the total, and the payment goes
+through. No real money is involved unless you want to donate :).
 
 ## Run it locally
 
-Needs [uv](https://docs.astral.sh/uv/). uv installs the right Python and the
+Needs [uv](https://docs.astral.sh/uv/), uv installs the right Python and the
 dependencies for you on the first run.
 
 ```bash
 uv run streamlit run app.py
 ```
 
-## Deploy on Streamlit Community Cloud
-
-1. Push this repo to GitHub.
-2. Go to https://share.streamlit.io → **Create app** → pick this repo, branch `main`, main file `app.py`.
-3. Deploy.
-
-## What's where
+## What is where
 
 | Path | What it is |
 | --- | --- |
