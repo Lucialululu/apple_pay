@@ -1,4 +1,4 @@
-# Hammie Shop 🐹
+# Hammie Shop
 
 A tiny, just-for-fun storefront for hand-drawn hamsters, built with Streamlit.
 
