@@ -22,7 +22,7 @@
 
 <div class="announce" id="announce">
   <div class="announce-inner">
-    <p>FREE SHIPPING – no code needed, every hamster travels free!</p>
+    <p>WAVE 2 IS HERE – 18 new hamsters just dropped. Free shipping, always.</p>
     <button class="icon-btn" id="announceClose" aria-label="Dismiss announcement">
       <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M2 2l10 10M12 2L2 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
     </button>
@@ -72,7 +72,7 @@
           <span class="line"><span>Coolest hamster</span></span>
           <span class="line"><span>art, ever.</span></span>
         </h1>
-        <p class="hero-sub reveal-up">Eighteen hand-drawn hamsters, each wearing a mood you'll recognize from your own Monday. Adopt one. Adopt five. They're happier in groups.</p>
+        <p class="hero-sub reveal-up">A growing herd of hand-drawn hamsters, each wearing a mood you'll recognize from your own Monday. Adopt one. Adopt five. They're happier in groups.</p>
         <div class="reveal-up" style="--d:.28s">
           <button class="btn-iri" data-go="shop"><span>SHOP NOW</span></button>
         </div>
@@ -104,7 +104,7 @@
       </div>
       <div class="about-cols">
         <p>Every hamster here started as a quick doodle and refused to leave. They are deeply unserious, mildly dramatic, and extremely loyal.</p>
-        <p>Each one ships with a free snack of your choosing, because nobody, hamster or human, should travel hungry.</p>
+        <p>And yes, we take Apple Pay. Literally. Bring apples.</p>
       </div>
     </section>
   </main>
@@ -130,6 +130,35 @@
   <div class="drawer-body" id="drawerBody"></div>
   <div class="drawer-foot" id="drawerFoot"></div>
 </aside>
+
+<div class="pay" id="pay" role="dialog" aria-modal="true" aria-labelledby="payTitle" hidden>
+  <div class="pay-hud">
+    <div class="pay-hud-row">
+      <p class="pay-title" id="payTitle">Apple Pay</p>
+      <button class="icon-btn" id="payCancel" aria-label="Cancel payment">
+        <svg width="16" height="16" viewBox="0 0 14 14" aria-hidden="true"><path d="M2 2l10 10M12 2L2 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+    <div class="pay-stats">
+      <div><p class="mono muted">TOTAL</p><p class="pay-num" id="payTotal"></p></div>
+      <div class="right"><p class="mono muted">COLLECTED</p><p class="pay-num" id="payGot" aria-live="polite"></p></div>
+    </div>
+    <div class="pay-bar" aria-hidden="true"><span id="payFill"></span></div>
+    <p class="pay-hint">Tap the apples, each one is worth $5. Everything else is a decoy.</p>
+  </div>
+  <div class="pay-arena" id="arena"></div>
+  <div class="pay-done" id="payDone" hidden>
+    <div class="pay-done-card">
+      <svg class="check" viewBox="0 0 64 64" aria-hidden="true">
+        <circle cx="32" cy="32" r="29" fill="none" stroke="url(#iri)" stroke-width="4"/>
+        <path d="M19 33l9 9 18-19" fill="none" stroke="#f4f2ee" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <h2>Payment successful!</h2>
+      <p id="payDoneText"></p>
+      <button class="btn-iri" id="payDoneBtn"><span>BACK TO THE SHOP</span></button>
+    </div>
+  </div>
+</div>
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 

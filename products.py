@@ -1,12 +1,52 @@
 """The hamster catalog.
 
-Prices were generated once with random.Random(31102026), each a whole
-number of dollars between $50 and $100. `compare_at` is the "was" price
-shown struck through on the items that are on sale.
-Edit anything here freely; the order below is the "Featured" order.
+Prices are whole dollars between $50 and $100, generated once with Python's
+random module (wave 1 with seed 31102026, wave 2 with seed 20261031).
+`compare_at` is the "was" price shown struck through on items that are on sale.
+`file` is relative to hamster_images/. `new` puts a NEW tag on the card.
+The order below is the "Featured" order. Edit anything freely.
 """
 
 PRODUCTS = [
+    # ---- Wave 2 (shown first, tagged NEW) ----
+    {"id": "hold_it_in", "file": "wave_2/hamster_I_gotta_hold_it_in.jpg", "name": "Hold-It-In Hamster", "mood": "Holding it in", "price": 69, "compare_at": 87, "new": True,
+     "blurb": "Cheeks clenched, smile locked, eyes watering slightly. Someone said something hilarious at a funeral and this hamster will not be the one who breaks."},
+    {"id": "cooked", "file": "wave_2/hamster_cokked.JPG", "name": "Cooked Hamster", "mood": "Overheated", "price": 54, "compare_at": None, "new": True,
+     "blurb": "Fell asleep in the sun, woke up medium-rare. Gently steaming. Please do not touch, it is still a bit warm."},
+    {"id": "ded", "file": "wave_2/hamster_ded.JPG", "name": "Ded Hamster", "mood": "Dramatically deceased", "price": 63, "compare_at": 75, "new": True,
+     "blurb": "Saw the group chat at 7am and simply lay down. Comes with its own flowers. Will be back to normal by lunch."},
+    {"id": "disgusted", "file": "wave_2/hamster_disgusted.JPG", "name": "Disgusted Hamster", "mood": "Grossed out", "price": 90, "compare_at": 110, "new": True,
+     "blurb": "Someone put pineapple on the sunflower seeds. The face says everything a strongly worded letter would."},
+    {"id": "eyebrow", "file": "wave_2/hamster_eyebrow_raised.JPG", "name": "Eyebrow Hamster", "mood": "Skeptical", "price": 98, "compare_at": None, "new": True,
+     "blurb": "One eyebrow, fully deployed. Your excuse has been received and is being reviewed with great suspicion."},
+    {"id": "glad", "file": "wave_2/hamster_glad.JPG", "name": "Glad Hamster", "mood": "Content", "price": 87, "compare_at": 99, "new": True,
+     "blurb": "A soft blush and a small, satisfied smile. The look of someone whose nap went exactly to plan."},
+    {"id": "hmmm", "file": "wave_2/hamster_hmmm.JPG", "name": "Hmmm Hamster", "mood": "Pondering", "price": 55, "compare_at": 73, "new": True,
+     "blurb": "Lips pursed, thinking very hard about whether to have a second snack. The answer is always yes, but the ritual matters."},
+    {"id": "knocked_out", "file": "wave_2/hamster_knocked_out.JPG", "name": "Knocked-Out Hamster", "mood": "Out cold", "price": 61, "compare_at": None, "new": True,
+     "blurb": "Ten minutes into the movie, one drool trail later. Ideal for anyone who 'is just resting their eyes'."},
+    {"id": "no_you_did_not", "file": "wave_2/hamster_no_you_did_not.JPG", "name": "Oh-No-You-Didn't Hamster", "mood": "Offended", "price": 74, "compare_at": None, "new": True,
+     "blurb": "You did. You really did. And this hamster will be bringing it up at every family dinner from now on."},
+    {"id": "not_impressed", "file": "wave_2/hamster_not_impressed.JPG", "name": "Not-Impressed Hamster", "mood": "Deadpan", "price": 73, "compare_at": None, "new": True,
+     "blurb": "Watched your magic trick. Saw the card up your sleeve. Said nothing, which somehow hurts more."},
+    {"id": "broke", "file": "wave_2/hamster_poor.JPG", "name": "Broke Hamster", "mood": "Broke", "price": 65, "compare_at": 83, "new": True,
+     "blurb": "Opened the wallet, found only flies. Payday is in nine days. Probably the most relatable hamster we've ever drawn."},
+    {"id": "sobbing", "file": "wave_2/hamster_sad.JPG", "name": "Sobbing Hamster", "mood": "Sobbing", "price": 60, "compare_at": None, "new": True,
+     "blurb": "Two waterfalls of tears and an open-mouth wail. The sad hamster's dramatic older sibling. Tissues not included."},
+    {"id": "smug", "file": "wave_2/hamster_smug.JPG", "name": "Smug Hamster", "mood": "Smug", "price": 81, "compare_at": None, "new": True,
+     "blurb": "Was right about the thing. Will not say 'I told you so' out loud. Doesn't need to."},
+    {"id": "sniff", "file": "wave_2/hamster_sniff.JPG", "name": "Sniffly Hamster", "mood": "Sniffly", "price": 71, "compare_at": None, "new": True,
+     "blurb": "Red nose, wobbly lip, trying very hard to be brave. Needs a hug and possibly a warm drink."},
+    {"id": "super_mad", "file": "wave_2/hamster_super_mad.JPG", "name": "Super-Mad Hamster", "mood": "Fuming", "price": 74, "compare_at": None, "new": True,
+     "blurb": "Brows so heavy they've become a single storm cloud. Do not ask what happened. Do not ask."},
+    {"id": "sweaty", "file": "wave_2/hamster_sweating.JPG", "name": "Sweaty Hamster", "mood": "Melting", "price": 75, "compare_at": None, "new": True,
+     "blurb": "It is 31 degrees and this hamster wore a fur coat. Every summer, the same mistake."},
+    {"id": "very_annoyed", "file": "wave_2/hamster_very_annoyed.JPG", "name": "Very Annoyed Hamster", "mood": "Screaming", "price": 85, "compare_at": None, "new": True,
+     "blurb": "The Wi-Fi dropped mid-upload. Again. Eyes burning, mouth wide, fully committed to the scream."},
+    {"id": "helmet", "file": "wave_2/hamster_war.jpg", "name": "Helmet Hamster", "mood": "On duty", "price": 61, "compare_at": 71, "new": True,
+     "blurb": "Helmet on, face blank, ready for the weekly team meeting. Has seen things. Mostly spreadsheets."},
+
+    # ---- Wave 1 ----
     {
         "id": "happy",
         "file": "hamster_happy.JPG",
@@ -191,10 +231,11 @@ PRODUCTS = [
     },
 ]
 
-# The four food icons in food_icons/, offered as a snack with every hamster.
-SNACKS = [
-    {"id": "apple", "file": "Red_Apple_Emoji_large.png", "name": "Apple"},
-    {"id": "pizza", "file": "Slice_Of_Pizza_Emoji_large.png", "name": "Pizza"},
-    {"id": "lemon", "file": "Lemon_Emoji_large.png", "name": "Lemon"},
-    {"id": "eggplant", "file": "Eggplant_Emoji_large.png", "name": "Eggplant"},
+# The four food icons in food_icons/. They only appear in the Apple Pay
+# checkout game: apples are worth $5 each, the rest are decoys.
+FRUIT = [
+    {"id": "apple", "file": "Red_Apple_Emoji_large.png", "value": 5},
+    {"id": "pizza", "file": "Slice_Of_Pizza_Emoji_large.png", "value": 0},
+    {"id": "lemon", "file": "Lemon_Emoji_large.png", "value": 0},
+    {"id": "eggplant", "file": "Eggplant_Emoji_large.png", "value": 0},
 ]

@@ -15,7 +15,7 @@ import streamlit as st
 import streamlit.components.v1 as components
 from PIL import Image
 
-from products import PRODUCTS, SNACKS
+from products import FRUIT, PRODUCTS
 
 ROOT = Path(__file__).parent
 HAMSTERS = ROOT / "hamster_images"
@@ -50,10 +50,26 @@ st.markdown(
 )
 
 
+def whiten_paper(img: Image.Image) -> Image.Image:
+    """Some scans have a light grey background. Stretch the levels so the
+    paper colour becomes pure white and every drawing sits on the same page."""
+    w, h = img.size
+    corners = [img.getpixel((x, y)) for x, y in [(2, 2), (w - 3, 2), (2, h - 3), (w - 3, h - 3)]]
+    paper = max(corners, key=sum)
+    if min(paper) < 200 or min(paper) >= 252:
+        return img  # coloured corner (e.g. a drawn sun) or already white
+    luts = []
+    for level in paper:
+        luts += [min(255, round(v * 255 / level)) for v in range(256)]
+    return img.point(luts)
+
+
 def to_data_uri(path: Path, max_side: int, fmt: str) -> str:
     """Shrink an image and inline it, so the page needs no static file server."""
     img = Image.open(path)
     img.thumbnail((max_side, max_side))
+    if fmt == "JPEG":
+        img = whiten_paper(img.convert("RGB"))
     buf = io.BytesIO()
     if fmt == "JPEG":
         img.convert("RGB").save(buf, "JPEG", quality=84, optimize=True)
@@ -77,14 +93,15 @@ def build_page(version: float) -> str:
                 "price": p["price"],
                 "compare": p["compare_at"],
                 "blurb": p["blurb"],
+                "new": bool(p.get("new")),
                 "img": to_data_uri(HAMSTERS / p["file"], 760, "JPEG"),
             }
         )
-    snacks = [
-        {"id": s["id"], "name": s["name"], "img": to_data_uri(FOOD / s["file"], 160, "PNG")}
-        for s in SNACKS
+    fruit = [
+        {"id": f["id"], "value": f["value"], "img": to_data_uri(FOOD / f["file"], 160, "PNG")}
+        for f in FRUIT
     ]
-    payload = json.dumps({"products": products, "snacks": snacks}).replace("</", "<\\/")
+    payload = json.dumps({"products": products, "fruit": fruit}).replace("</", "<\\/")
 
     html = (SHOP / "index.html").read_text(encoding="utf-8")
     css = (SHOP / "styles.css").read_text(encoding="utf-8")
@@ -97,5 +114,5 @@ def build_page(version: float) -> str:
 
 
 # Rebuild the cached page whenever any source file changes.
-version = max(f.stat().st_mtime for f in [*SHOP.iterdir(), ROOT / "products.py"])
+version = max(f.stat().st_mtime for f in [*SHOP.iterdir(), ROOT / "products.py", ROOT / "app.py"])
 components.html(build_page(version), height=900, scrolling=True)

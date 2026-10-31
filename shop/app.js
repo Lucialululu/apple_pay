@@ -3,9 +3,8 @@
 
   const DATA = window.__SHOP__;
   const PRODUCTS = DATA.products;
-  const SNACKS = DATA.snacks;
+  const FRUIT = DATA.fruit;
   const byId = Object.fromEntries(PRODUCTS.map((p) => [p.id, p]));
-  const snackById = Object.fromEntries(SNACKS.map((s) => [s.id, s]));
 
   const $ = (sel, el = document) => el.querySelector(sel);
   const $$ = (sel, el = document) => [...el.querySelectorAll(sel)];
@@ -21,22 +20,21 @@
   /* ------------------------------------------------------------------ */
   /* Cart state (kept in this browser only)                              */
   /* ------------------------------------------------------------------ */
-  const STORE_KEY = "hammie-cart-v1";
+  const STORE_KEY = "hammie-cart-v2";
   let cart = [];
   try {
     const saved = JSON.parse(localStorage.getItem(STORE_KEY) || "[]");
-    if (Array.isArray(saved)) cart = saved.filter((l) => byId[l.id] && snackById[l.snack] && l.qty > 0);
+    if (Array.isArray(saved)) cart = saved.filter((l) => byId[l.id] && l.qty > 0);
   } catch (e) { /* storage unavailable: cart lives in memory */ }
 
   const save = () => { try { localStorage.setItem(STORE_KEY, JSON.stringify(cart)); } catch (e) {} };
   const cartCount = () => cart.reduce((n, l) => n + l.qty, 0);
   const cartTotal = () => cart.reduce((n, l) => n + l.qty * byId[l.id].price, 0);
 
-  function addToCart(id, snack, qty) {
-    const key = `${id}:${snack}`;
-    const line = cart.find((l) => l.key === key);
+  function addToCart(id, qty) {
+    const line = cart.find((l) => l.key === id);
     if (line) line.qty = Math.min(99, line.qty + qty);
-    else cart.push({ key, id, snack, qty, fresh: true });
+    else cart.push({ key: id, id, qty, fresh: true });
     save();
     updateBadge(true);
     renderCart();
@@ -84,22 +82,18 @@
   /* ------------------------------------------------------------------ */
   const heroArt = $("#heroArt");
   const hangers = [
+    // Back row first, so the front tags overlap their cables.
+    { id: "glad", left: 13, width: 19, len: "clamp(260px, 50vh, 470px)", amp: "2.2deg", dur: "7s", delay: "-2s", depth: 8, in: ".5s", cls: "back" },
+    { id: "cooked", left: 87, width: 19, len: "clamp(220px, 40vh, 380px)", amp: "2.4deg", dur: "6.6s", delay: "-4s", depth: 10, in: ".6s", cls: "back" },
     { id: "queen", left: 17, width: 25, len: "clamp(50px, 13vh, 150px)", amp: "3deg", dur: "5.2s", delay: "-1.4s", depth: 26, in: ".25s" },
     { id: "happy", left: 51, width: 44, len: "clamp(80px, 25vh, 260px)", amp: "1.6deg", dur: "6.4s", delay: "-3s", depth: 14, in: ".1s" },
     { id: "tongue", left: 85, width: 24, len: "clamp(24px, 6vh, 80px)", amp: "2.6deg", dur: "5.8s", delay: "-0.6s", depth: 22, in: ".4s" },
   ];
-  const floaties = [
-    { snack: "pizza", x: 8, y: 66, s: "clamp(44px, 5vw, 72px)", dur: "4.6s", delay: "-1s", depth: 40, in: ".55s" },
-    { snack: "apple", x: 80, y: 72, s: "clamp(40px, 4.4vw, 64px)", dur: "5.4s", delay: "-2.4s", depth: 46, in: ".65s" },
-    { snack: "lemon", x: 30, y: 84, s: "clamp(30px, 3.2vw, 48px)", dur: "4.2s", delay: "-.4s", depth: 34, in: ".75s" },
-    { snack: "eggplant", x: 64, y: 88, s: "clamp(34px, 3.6vw, 54px)", dur: "6s", delay: "-3.2s", depth: 30, in: ".85s" },
-  ];
-
   const layers = [];
   hangers.forEach((h) => {
     const p = byId[h.id];
     const layer = document.createElement("div");
-    layer.className = "layer";
+    layer.className = `layer ${h.cls || ""}`;
     layer.style.cssText = `left:${h.left}%;width:${h.width}%;margin-left:-${h.width / 2}%;--in:${h.in}`;
     layer.innerHTML = `
       <div class="swing" style="--amp:${h.amp};--dur:${h.dur};--delay:${h.delay}">
@@ -109,14 +103,6 @@
       </div>`;
     heroArt.appendChild(layer);
     layers.push({ el: layer, depth: h.depth });
-  });
-  floaties.forEach((f) => {
-    const wrap = document.createElement("div");
-    wrap.className = `floaty-wrap f-${f.snack}`;
-    wrap.style.cssText = `left:${f.x}%;top:${f.y}%;--in:${f.in}`;
-    wrap.innerHTML = `<div class="layer-inner"><img class="floaty" src="${snackById[f.snack].img}" alt="" style="--s:${f.s};--dur:${f.dur};--delay:${f.delay}"></div>`;
-    heroArt.appendChild(wrap);
-    layers.push({ el: wrap.firstElementChild, depth: f.depth });
   });
   requestAnimationFrame(() => heroArt.classList.add("ready"));
 
@@ -145,6 +131,7 @@
   /* Marquee of moods (content doubled for a seamless loop). */
   const moods = PRODUCTS.map((p) => p.mood.toUpperCase());
   $("#marquee").innerHTML = [...moods, ...moods].map((m) => `<span>${esc(m)}</span>`).join("");
+  $("#marquee").style.animationDuration = `${moods.length * 3.4}s`;
 
   /* ------------------------------------------------------------------ */
   /* Product grid with sort/filter (FLIP-animated) and scroll reveal     */
@@ -164,6 +151,7 @@
         <button class="frame card-media" data-open="${p.id}" aria-label="View ${esc(p.name)}">
           <span class="paper"><img src="${p.img}" alt="${esc(p.name)}: hand-drawn hamster looking ${esc(p.mood.toLowerCase())}" loading="lazy" decoding="async"></span>
           <span class="num">NO. ${pad(p.no)}</span>
+          ${p.new ? `<span class="new-tag">NEW</span>` : ""}
           ${p.compare ? `<span class="sale-tag">SALE</span>` : ""}
         </button>
         <button class="quick-add" data-add="${p.id}" aria-label="Add ${esc(p.name)} to cart">+ ADD</button>
@@ -276,15 +264,15 @@
   addEventListener("resize", moveSegIndicator);
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(moveSegIndicator);
 
-  // Grid clicks: open a product, or quick-add with the default snack.
+  // Grid clicks: open a product, or quick-add one.
   document.addEventListener("click", (e) => {
     const add = e.target.closest("[data-add]");
     if (add) {
       const id = add.dataset.add;
       const img = add.closest(".media-wrap").querySelector("img");
       flyToCart(img, byId[id].img);
-      addToCart(id, SNACKS[0].id, 1);
-      showToast(id, SNACKS[0].id, 1);
+      addToCart(id, 1);
+      showToast(id, 1);
       return;
     }
     const open = e.target.closest("[data-open]");
@@ -323,7 +311,6 @@
     const p = byId[id];
     if (!p) return;
     if (!home.hidden) lastHomeScroll = scrollY;
-    let snack = SNACKS[0].id;
     let qty = 1;
 
     const others = PRODUCTS.filter((o) => o.id !== id);
@@ -342,16 +329,7 @@
             <h1 class="detail-title">${esc(p.name)}</h1>
             <p class="detail-price">${priceHTML(p)}</p>
             <p class="desc">${esc(p.blurb)}</p>
-            <p class="specs">• Hand-drawn original • One of ${PRODUCTS.length} moods • Ships with a snack of your choice • 100% hamster, 0% assembly</p>
-            <div class="box">
-              <p class="box-label" id="snackLabel">SELECT SNACK</p>
-              <div class="chips" role="radiogroup" aria-labelledby="snackLabel">
-                ${SNACKS.map((s, i) => `
-                  <button class="chip" role="radio" aria-checked="${i === 0}" data-snack="${s.id}">
-                    <img src="${s.img}" alt="">${esc(s.name)}
-                  </button>`).join("")}
-              </div>
-            </div>
+            <p class="specs">• Hand-drawn original • One of ${PRODUCTS.length} moods • Ships in a tiny cardboard box • 100% hamster, 0% assembly</p>
             <div class="box buyrow">
               <div class="step" aria-label="Quantity">
                 <button data-step="-1" aria-label="Decrease quantity">−</button>
@@ -371,7 +349,7 @@
                     <dt>POCKET</dt><dd>Fits in a jacket pocket. Will complain about the lint.</dd>
                     <dt>DESK</dt><dd>Sits next to your monitor and silently judges your tabs.</dd>
                     <dt>HEART</dt><dd>Infinitely large. One size fits all.</dd>
-                    <dt>CARE</dt><dd>Feed the included snack. Do not get wet. Do not feed after midnight, just in case.</dd>
+                    <dt>CARE</dt><dd>Feed apples. Do not get wet. Do not feed after midnight, just in case.</dd>
                   </dl>
                 </div>
               </div>
@@ -392,13 +370,6 @@
     scrollTo({ top: 0, behavior: "instant" });
     enter(detail);
 
-    // Snack picker
-    const chips = $$(".chip", detail);
-    chips.forEach((c) => c.addEventListener("click", () => {
-      snack = c.dataset.snack;
-      chips.forEach((o) => o.setAttribute("aria-checked", String(o === c)));
-    }));
-
     // Quantity
     const out = $("#qty", detail);
     $$("[data-step]", detail).forEach((b) => b.addEventListener("click", () => {
@@ -406,14 +377,13 @@
       out.textContent = qty;
     }));
 
-    // Add to cart: label morphs to ADDED, the chosen snack flies to the cart.
+    // Add to cart: label morphs to ADDED, the hamster flies to the cart.
     const addBtn = $("#addBtn", detail);
     let doneTimer = 0;
     addBtn.addEventListener("click", () => {
-      const chip = chips.find((c) => c.dataset.snack === snack);
-      flyToCart(chip.querySelector("img"), snackById[snack].img, true);
-      addToCart(id, snack, qty);
-      showToast(id, snack, qty);
+      flyToCart($("#tilt img", detail), p.img);
+      addToCart(id, qty);
+      showToast(id, qty);
       addBtn.classList.add("added");
       clearTimeout(doneTimer);
       doneTimer = setTimeout(() => addBtn.classList.remove("added"), 1400);
@@ -454,7 +424,7 @@
   const cartBtn = $("#cartBtn");
   const badge = $("#badge");
 
-  function flyToCart(fromEl, src, round) {
+  function flyToCart(fromEl, src) {
     if (reduceMotion || !fromEl) return;
     const a = fromEl.getBoundingClientRect();
     const b = $(".cart-icon", cartBtn).getBoundingClientRect();
@@ -467,7 +437,7 @@
     const fy = document.createElement("div");
     fx.className = "flyer-x"; fy.className = "flyer-y";
     fy.style.width = fy.style.height = `${size}px`;
-    fy.innerHTML = `<img src="${src}" alt="" style="${round ? "background:none;box-shadow:none;object-fit:contain" : ""}">`;
+    fy.innerHTML = `<img src="${src}" alt="">`;
     fx.appendChild(fy);
     document.body.appendChild(fx);
 
@@ -500,9 +470,9 @@
 
   const toast = $("#toast");
   let toastTimer = 0;
-  function showToast(id, snack, qty) {
+  function showToast(id, qty) {
     const p = byId[id];
-    toast.innerHTML = `<img src="${p.img}" alt=""><span>${qty > 1 ? `${qty} × ` : ""}${esc(p.name)} added</span><img class="snack" src="${snackById[snack].img}" alt="">`;
+    toast.innerHTML = `<img src="${p.img}" alt=""><span>${qty > 1 ? `${qty} × ` : ""}${esc(p.name)} added</span>`;
     toast.classList.add("show");
     clearTimeout(toastTimer);
     toastTimer = setTimeout(() => toast.classList.remove("show"), 2200);
@@ -541,6 +511,7 @@
   scrim.addEventListener("click", closeCart);
   document.addEventListener("keydown", (e) => {
     if (e.key !== "Escape") return;
+    if (game) { if (game.running) cancelPay(); return; }
     if (pagesMenu.classList.contains("open")) { setMenu(false); pagesBtn.focus(); return; }
     closeCart();
   });
@@ -564,7 +535,7 @@
     }
 
     body.innerHTML = cart.map((l) => {
-      const p = byId[l.id], s = snackById[l.snack];
+      const p = byId[l.id];
       return `
         <div class="cart-line ${l.fresh ? "entering" : ""}" data-key="${l.key}">
           <button class="frame" data-open-from-cart="${p.id}" aria-label="View ${esc(p.name)}"><span class="paper" style="aspect-ratio:1"><img src="${p.img}" alt=""></span></button>
@@ -573,7 +544,7 @@
               <p class="line-name">${esc(p.name)}</p>
               <p class="line-price">$ ${(p.price * l.qty).toFixed(2)}</p>
             </div>
-            <p class="line-snack"><img src="${s.img}" alt="">with ${esc(s.name.toLowerCase())}</p>
+            <p class="line-mood">${esc(p.mood)}</p>
             <div class="line-bottom">
               <div class="step sm" aria-label="Quantity of ${esc(p.name)}">
                 <button data-line-step="-1" aria-label="Decrease">−</button>
@@ -593,7 +564,7 @@
       <div class="sum-row"><span>SHIPPING</span><span>FREE</span></div>
       <div class="sum-row total"><span>TOTAL</span><span>${money(total)}</span></div>
       <button class="btn-iri wide" id="checkout"><span>CHECKOUT</span></button>`;
-    $("#checkout").addEventListener("click", checkout);
+    $("#checkout").addEventListener("click", renderPayment);
   }
 
   body.addEventListener("click", (e) => {
@@ -624,48 +595,238 @@
     setTimeout(renderCart, 220);
   }
 
-  function checkout() {
-    const count = cartCount();
+  /* ------------------------------------------------------------------ */
+  /* Checkout step 2: Apple Pay, where you literally pay in apples        */
+  /* ------------------------------------------------------------------ */
+  const APPLE = FRUIT.find((f) => f.value > 0);
+  const DECOYS = FRUIT.filter((f) => f.value === 0);
+  const APPLE_VALUE = APPLE.value;
+
+  const pay = $("#pay");
+  const arena = $("#arena");
+  const payDone = $("#payDone");
+  const payGot = $("#payGot");
+  const payFill = $("#payFill");
+  let game = null;
+
+  // Drawer step between the cart and the game.
+  function renderPayment() {
     const total = cartTotal();
+    const count = cartCount();
+    const apples = Math.ceil(total / APPLE_VALUE);
+    body.innerHTML = `
+      <div class="pay-step">
+        <button class="back" data-back-cart><span class="arr">←</span> BACK TO CART</button>
+        <p class="eyebrow mono">STEP 2 OF 2 · PAYMENT</p>
+        <h3>How would you like to pay?</h3>
+        <div class="pay-summary">
+          <div class="sum-row"><span>${count} HAMSTER${count === 1 ? "" : "S"}</span><span>${money(total)}</span></div>
+          <div class="sum-row"><span>SHIPPING</span><span>FREE</span></div>
+          <div class="sum-row total"><span>TO PAY</span><span>${money(total)}</span></div>
+        </div>
+        <button class="apple-pay" id="applePay">
+          <span>Pay with</span><img src="${APPLE.img}" alt=""><b>Apple Pay</b>
+        </button>
+        <p class="pay-note">Our cashier only accepts apples. Each apple you catch is worth $${APPLE_VALUE}, so you'll need about <b>${apples}</b>.</p>
+        <button class="pay-alt" disabled>
+          <span>Card</span><span class="mono">OUT OF ORDER</span>
+        </button>
+      </div>`;
+    foot.innerHTML = "";
+    $("[data-back-cart]", body).addEventListener("click", renderCart);
+    $("#applePay", body).addEventListener("click", startPay);
+    $("#applePay", body).focus({ preventScroll: true });
+  }
+
+  function setCollected() {
+    payGot.textContent = money(game.got);
+    payFill.style.transform = `scaleX(${Math.min(1, game.got / game.total)})`;
+  }
+
+  function startPay() {
+    const total = cartTotal();
+    if (!total) return;
+    game = {
+      total, got: 0, caught: 0, items: [], running: true,
+      last: performance.now(), spawnIn: 0.2, raf: 0,
+    };
+    $("#payTotal").textContent = money(total);
+    setCollected();
+    arena.innerHTML = "";
+    payDone.hidden = true;
+    pay.hidden = false;
+    pay.classList.remove("done");
+    void pay.offsetWidth;
+    pay.classList.add("open");
+    $("#payCancel").focus({ preventScroll: true });
+    game.raf = requestAnimationFrame(loop);
+  }
+
+  function spawn() {
+    const W = arena.clientWidth, H = arena.clientHeight;
+    const isApple = Math.random() < 0.5;
+    const f = isApple ? APPLE : DECOYS[Math.floor(Math.random() * DECOYS.length)];
+    const size = (W < 600 ? 58 : 72) + Math.random() * 18;
+    const el = document.createElement("button");
+    el.type = "button";
+    el.className = "fruit";
+    el.style.width = el.style.height = `${size}px`;
+    el.setAttribute("aria-label", isApple ? `Apple, worth $${APPLE_VALUE}` : "Not an apple");
+    el.innerHTML = `<img src="${f.img}" alt="" draggable="false">`;
+    const speed = H * (0.24 + Math.random() * 0.2) * (reduceMotion ? 0.6 : 1);
+    const item = {
+      el, f, size,
+      x: size / 2 + Math.random() * Math.max(1, W - size * 2),
+      y: -size,
+      vy: speed,
+      sway: 10 + Math.random() * 24,
+      phase: Math.random() * Math.PI * 2,
+      rot: (Math.random() - 0.5) * 40,
+      vr: reduceMotion ? 0 : (Math.random() - 0.5) * 120,
+      dead: false,
+    };
+    el.addEventListener("pointerdown", (e) => { e.preventDefault(); hit(item, e.clientX, e.clientY); });
+    el.addEventListener("click", (e) => {
+      // Keyboard activation (Enter/Space) arrives as a click with no pointer.
+      if (e.detail === 0) { const r = el.getBoundingClientRect(); hit(item, r.left + r.width / 2, r.top); }
+    });
+    arena.appendChild(el);
+    game.items.push(item);
+  }
+
+  function place(item, t) {
+    const x = item.x + Math.sin(t / 700 + item.phase) * item.sway;
+    item.el.style.transform = `translate3d(${x.toFixed(1)}px, ${item.y.toFixed(1)}px, 0) rotate(${item.rot.toFixed(1)}deg)`;
+  }
+
+  function loop(now) {
+    if (!game || !game.running) return;
+    const dt = Math.min(0.05, (now - game.last) / 1000);
+    game.last = now;
+    const H = arena.clientHeight;
+
+    game.spawnIn -= dt;
+    if (game.spawnIn <= 0 && game.items.length < 16) {
+      spawn();
+      game.spawnIn = 0.34 + Math.random() * 0.3;
+    }
+    game.items.forEach((it) => {
+      if (it.dead) return;
+      it.y += it.vy * dt;
+      it.rot += it.vr * dt;
+      if (it.y > H + 10) { it.dead = true; it.el.remove(); return; }
+      place(it, now);
+    });
+    game.items = game.items.filter((it) => !it.dead);
+    game.raf = requestAnimationFrame(loop);
+  }
+
+  function floatText(text, x, y, good) {
+    const r = pay.getBoundingClientRect();
+    const t = document.createElement("span");
+    t.className = `float-text ${good ? "good" : "bad"}`;
+    t.textContent = text;
+    t.style.left = `${x - r.left}px`;
+    t.style.top = `${y - r.top}px`;
+    pay.appendChild(t);
+    t.animate([
+      { transform: "translate(-50%, -50%) scale(0.9)", opacity: 0 },
+      { transform: "translate(-50%, -90%) scale(1.05)", opacity: 1, offset: 0.25 },
+      { transform: "translate(-50%, -190%) scale(1)", opacity: 0 },
+    ], { duration: reduceMotion ? 500 : 800, easing: EASE_OUT }).onfinish = () => t.remove();
+  }
+
+  function hit(item, x, y) {
+    if (!game || !game.running || item.dead) return;
+    if (item.f.value > 0) {
+      item.dead = true;
+      game.got += item.f.value;
+      game.caught += 1;
+      setCollected();
+      floatText(`+$${item.f.value}`, x, y, true);
+      const img = item.el.firstElementChild;
+      img.animate([{ transform: "scale(1)", opacity: 1 }, { transform: "scale(1.45)", opacity: 0 }],
+        { duration: 200, easing: EASE_OUT, fill: "forwards" }).onfinish = () => item.el.remove();
+      payGot.animate([{ transform: "scale(1)" }, { transform: "scale(1.12)" }, { transform: "scale(1)" }],
+        { duration: 240, easing: EASE_OUT });
+      if (game.got >= game.total) win();
+    } else {
+      floatText("Not an apple!", x, y, false);
+      if (!reduceMotion) {
+        item.el.firstElementChild.animate(
+          [{ transform: "rotate(0)" }, { transform: "rotate(-16deg)" }, { transform: "rotate(14deg)" }, { transform: "rotate(-8deg)" }, { transform: "rotate(0)" }],
+          { duration: 360, easing: "ease-in-out" });
+      }
+    }
+  }
+
+  function stopGame() {
+    game.running = false;
+    cancelAnimationFrame(game.raf);
+    game.items.forEach((it) => {
+      if (it.dead) return;
+      it.dead = true;
+      it.el.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 200, fill: "forwards" }).onfinish = () => it.el.remove();
+    });
+  }
+
+  function cancelPay() {
+    if (!game) return;
+    stopGame();
+    game = null;
+    pay.classList.remove("open");
+    setTimeout(() => { pay.hidden = true; arena.innerHTML = ""; }, 220);
+    const btn = $("#applePay", body);
+    if (btn) btn.focus({ preventScroll: true });
+  }
+  $("#payCancel").addEventListener("click", cancelPay);
+
+  function win() {
+    stopGame();
+    const { total, got, caught } = game;
+    const change = got - total;
     cart = [];
     save();
     updateBadge(false);
-    $("#drawerCount").textContent = "";
-    const happy = byId.happy;
-    body.innerHTML = `
-      <div class="empty-state">
-        <div class="frame"><div class="paper" style="aspect-ratio:1"><img src="${happy.img}" alt=""></div></div>
-        <h3>Adoption complete!</h3>
-        <p>${count} hamster${count === 1 ? "" : "s"} for ${money(total)}. Pretend ones, of course: this shop is just for fun.</p>
-        <button class="btn-iri" data-browse><span>KEEP BROWSING</span></button>
-      </div>`;
-    foot.innerHTML = "";
-    $("[data-browse]", body).addEventListener("click", () => { closeCart(); showHome("shop"); });
-    confetti();
+    renderCart();
+
+    $("#payDoneText").innerHTML =
+      `You paid ${money(total)} with <b>${caught}</b> apple${caught === 1 ? "" : "s"}.` +
+      (change > 0 ? ` Keep the change ($${change}).` : "") +
+      " Your hamsters are on their way.";
+    pay.classList.add("done");
+    payDone.hidden = false;
+    $("#payDoneBtn").focus({ preventScroll: true });
+    appleRain();
   }
 
-  // A rare, celebratory moment, so it is allowed to be a little extra.
-  function confetti() {
+  $("#payDoneBtn").addEventListener("click", () => {
+    game = null;
+    pay.classList.remove("open", "done");
+    setTimeout(() => { pay.hidden = true; arena.innerHTML = ""; payDone.hidden = true; }, 220);
+    closeCart();
+    showHome("shop");
+  });
+
+  // The payment went through: a short celebratory shower of apples.
+  function appleRain() {
     if (reduceMotion) return;
     const W = innerWidth, H = innerHeight;
-    for (let i = 0; i < 28; i++) {
-      const s = SNACKS[i % SNACKS.length];
+    for (let i = 0; i < 30; i++) {
       const img = document.createElement("img");
       img.className = "confetti";
-      img.src = s.img;
+      img.src = APPLE.img;
       img.alt = "";
-      const size = 26 + Math.random() * 26;
+      const size = 26 + Math.random() * 30;
       img.style.width = `${size}px`;
       img.style.left = `${Math.random() * (W - size)}px`;
-      document.body.appendChild(img);
-      const drift = (Math.random() - 0.5) * 220;
-      const spin = (Math.random() - 0.5) * 900;
+      pay.appendChild(img);
       img.animate([
-        { transform: "translate(0, 0) rotate(0deg)", opacity: 1 },
-        { transform: `translate(${drift}px, ${H + 120}px) rotate(${spin}deg)`, opacity: 1 },
+        { transform: "translate(0, 0) rotate(0deg)" },
+        { transform: `translate(${(Math.random() - 0.5) * 220}px, ${H + 120}px) rotate(${(Math.random() - 0.5) * 900}deg)` },
       ], {
         duration: 1500 + Math.random() * 1100,
-        delay: Math.random() * 450,
+        delay: Math.random() * 500,
         easing: "cubic-bezier(0.35, 0.1, 0.65, 1)",
         fill: "backwards",
       }).onfinish = () => img.remove();

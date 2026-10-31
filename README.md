@@ -2,9 +2,13 @@
 
 A tiny, just-for-fun storefront for hand-drawn hamsters, built with Streamlit.
 
-Browse eighteen moods (Sus, Queen, Bleh, Phone…), open any hamster for its own
-page, pick a free snack, and add it to the cart. Checkout is pretend: there is
-no real payment, just a small celebration.
+Browse 36 moods across two waves (Sus, Queen, Ded, Smug…), open any hamster
+for its own page, and add it to the cart.
+
+Checkout takes Apple Pay, literally: pick **Pay with Apple Pay** and fruit
+starts falling. Tap the apples (each is worth $5, the pizza, lemons and
+eggplants are decoys) until you've collected the total, and the payment goes
+through. No real money is involved.
 
 ## Run it locally
 
@@ -27,9 +31,9 @@ uv run streamlit run app.py
 | --- | --- |
 | `pyproject.toml`, `uv.lock`, `.python-version` | Dependencies and Python version, managed by uv. |
 | `app.py` | Streamlit entry point. Inlines the images and renders the shop full-screen. |
-| `products.py` | The catalog: names, moods, descriptions and prices ($50–$100). Edit freely. |
+| `products.py` | The catalog (names, moods, descriptions, prices $50–$100) and the fruit for the checkout game. Edit freely. |
 | `shop/index.html`, `shop/styles.css`, `shop/app.js` | The storefront: layout, styles, cart and animations. |
-| `hamster_images/` | The hamster drawings (the products). |
-| `food_icons/` | Snack icons, offered with every hamster. |
+| `hamster_images/` | The hamster drawings (the products). Wave 2 lives in `wave_2/`. |
+| `food_icons/` | The fruit that falls during the Apple Pay checkout. |
 
 The cart is saved in the visitor's own browser, so it survives a refresh.
